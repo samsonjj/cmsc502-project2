@@ -13,6 +13,9 @@ int computeDistanceArray(thread_vars *vars, std::vector<city> cities) {
     }
 }
 
+// I need to return the minimum path, as well as minimum distance
+// just need to return the ids of the cities in order of the path
+
 solution dynamicSolution(thread_vars *vars) {
     if(vars->unvisited.size() == 0) {
         solution sol(0, vars->cities[vars->currentPath.back()].id);
@@ -21,6 +24,7 @@ solution dynamicSolution(thread_vars *vars) {
         // explore all unvisited, ignore source
         float min_dist = std::numeric_limits<float>::max();
         int min_last_city;
+        vector<int> min_path;
         for(int i = 0; i < vars->unvisited.size(); i++) {
 
             // set the new current
@@ -36,9 +40,11 @@ solution dynamicSolution(thread_vars *vars) {
             if(dist < min_dist) {
                 min_dist = dist;
                 min_last_city = dSol.last_city;
+                min_path = dSol.path;
             }
         }
-        solution sol(min_dist, min_last_city);
+        min_path.insert(min_path.begin(), vars->cities[vars->currentPath.back()].id);
+        solution sol(min_dist, min_last_city, min_path);
         return sol;
     }
 }

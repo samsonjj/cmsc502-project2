@@ -131,6 +131,13 @@ int execMain(int rank, int nthreads, int argc, char* argv[]) {
             
         }
     }
+
+
+    // TODO
+    // 1) Make the tsp solution return the calculated path
+    // 2) Remove first_city, last_city
+    // 3) Implement some nice parallel stitching using new algorithm
+    // 4) Compile the paths together into a single vector or structure of some sort
     
     // store the "solutions" here, each containing the distance, first_city, and last_city in the path
     solution **solutionArray = new solution*[blocks.size()];
@@ -299,6 +306,10 @@ int execSlave(int rank) {
     vars->cities = cities;
     solution sol = startDynamicSolution(vars, vars->cities);
 
+    for(int i = 0; i < sol.path.size(); i++) {
+        cout << sol.path[i] << ",";
+    }
+    cout << endl;
 
     // send back the results
     MPI_Send(&sol.distance, 1, MPI_FLOAT, 0, 4, MPI_COMM_WORLD);

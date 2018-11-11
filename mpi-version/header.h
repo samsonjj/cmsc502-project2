@@ -22,6 +22,7 @@ struct city {
 struct solution {
     int first_city;
     int last_city;
+    std::vector<int> path;
     float distance;
     bool visited;
 
@@ -30,6 +31,7 @@ struct solution {
     
     solution(void) { }
     solution(float d, int last) : distance(d), last_city(last) { }
+    solution(float d, int last, std::vector<int> p) : distance(d), last_city(last), path(p) { }
 };
 
 struct thread_vars {
