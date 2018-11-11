@@ -12,7 +12,9 @@ using namespace std;
 int GRID_LENGTH;
 int logLevel;
 
-
+/**
+ * @return returns a vector of 'city' objects
+ */
 vector<city> readInCities() {
 
     vector<city> all_cities;
@@ -35,35 +37,25 @@ vector<city> readInCities() {
 }
 
 
-bool compareCitiesByX(city a, city b) {
-    return a.x < b.x;
-}
-
-bool compareCitiesByY(city a, city b) {
-    return a.y < b.y;
-}
-
-
 int execMain(int rank, int nthreads, int argc, char* argv[]) {
 
-    cout << "number of processors: " << nthreads << endl;
-
-    struct timespec start, end;
-    clock_gettime(CLOCK_MONOTONIC_RAW, &start);
-
-
+    // Log level
     if(argc > 1 && strcmp(argv[1], "v")==0) logLevel = 1; // v for verbose
     else logLevel = 0;
 
-
-    vector<city> all_cities = readInCities();
-
-    GRID_LENGTH = sqrt(nthreads);
-
+    cout << "number of processors: " << nthreads << endl;
     if(logLevel==1) cout << "Grid Length: " << GRID_LENGTH << endl;
 
+    // Timing
+    struct timespec start, end;
+    clock_gettime(CLOCK_MONOTONIC_RAW, &start);
 
-    // seperate cities into rows
+    // Take input
+    vector<city> all_cities = readInCities();
+
+
+
+    // Seperate cities into rows
     sort(all_cities.begin(), all_cities.end(), compareCitiesByY);
     vector< vector<city> > rows;
     // ensure that we get each city exactly once
@@ -76,7 +68,7 @@ int execMain(int rank, int nthreads, int argc, char* argv[]) {
         rows.push_back(newVector);
     }
 
-    // split each row up into "columns"
+    // Seperate rows into columns
     for(int i = 0; i < rows.size(); i++) {
         sort(rows[i].begin(), rows[i].end(), compareCitiesByX);
     }
@@ -105,20 +97,21 @@ int execMain(int rank, int nthreads, int argc, char* argv[]) {
         }
     }
 
-
-    // create threads
-    thread_vars *vars;
     vector<city> cities_by_id;
-    // for city ids
+    // add cities to vector, and set ids based on order in the grid
+    // vector will come out sorted
     int count = 0;
     for(int i = 0; i < blocks.size(); i++) {
         for(int j = 0; j < blocks[i].size(); j++) {
+
+            // Set city ids and add to vector
             for(int k = 0; k < blocks[i][j].size(); k++) {
                 blocks[i][j][k].id = count;
                 count++;
                 cities_by_id.push_back(blocks[i][j][k]);
             }
-            // do some kind of data transfer here to the different threads
+
+            // Prepare to send data to the processor that will handle this block
             int numCities = blocks[i][j].size();
             float x_coordinates[numCities];
             float y_coordinates[numCities];
@@ -129,7 +122,8 @@ int execMain(int rank, int nthreads, int argc, char* argv[]) {
                 ids[k] = blocks[i][j][k].id;
             }
             int dest = i*GRID_LENGTH+j+1;
-            
+
+            // Send data to processor that will handle this block
             MPI_Send(&numCities, 1, MPI_INT, dest, 0, MPI_COMM_WORLD);
             MPI_Send(x_coordinates, numCities, MPI_FLOAT, dest, 1, MPI_COMM_WORLD);
             MPI_Send(y_coordinates, numCities, MPI_FLOAT, dest, 2, MPI_COMM_WORLD);
@@ -162,21 +156,6 @@ int execMain(int rank, int nthreads, int argc, char* argv[]) {
             solutionArray[i][j] = sol;
         }
     }
-
-
-    /*
-       for(int i = 0; i < blocks.size(); i++) {
-       for(int j = 0; j < blocks[i].size(); j++) {
-       }
-       }
-       */
-
-
-
-
-
-
-
 
 
     if(logLevel == 1) {
@@ -286,7 +265,7 @@ int execMain(int rank, int nthreads, int argc, char* argv[]) {
 }
 
 int execSlave(int rank) {
-    
+
     if(rank > GRID_LENGTH*GRID_LENGTH) {
         cout << "unused rank: " << rank << endl;
         // we don't need this process
@@ -338,6 +317,8 @@ int main(int argc, char* argv[]) {
     MPI_Comm_rank(MPI_COMM_WORLD, &rank);
     MPI_Comm_size(MPI_COMM_WORLD, &nthreads);
 
+    // Calulate Grid Length
+    // Necessary to decide what each thread should do, so do it before
     GRID_LENGTH = floor(sqrt(nthreads-1));
 
     if(rank==0) {

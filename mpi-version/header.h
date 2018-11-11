@@ -63,4 +63,10 @@ void printMatrix(float** matrix, int r, int c) {
     }
 }
 
+bool compareCitiesByX(city a, city b) {
+    return a.x < b.x;
+}
 
+bool compareCitiesByY(city a, city b) {
+    return a.y < b.y;
+}
