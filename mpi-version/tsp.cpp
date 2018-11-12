@@ -19,7 +19,7 @@ int computeDistanceArray(thread_vars *vars, std::vector<city> cities) {
 solution dynamicSolution(thread_vars *vars) {
     if(vars->unvisited.size() == 0) {
         vector<int> min_path;
-        min_path.push_back(vars->cities[vars->currentPath.back()].id);
+        min_path.push_back(vars->currentPath.back());
         solution sol(vars->distance_array[vars->currentPath.back()][vars->currentPath[0]], vars->cities[vars->currentPath.back()].id, min_path);
         return sol;
     } else {
@@ -71,7 +71,7 @@ solution startDynamicSolution(thread_vars *vars, std::vector<city> cities) {
 vector< vector< vector<city> > > generate_cities(int a, int b, int cities_per_block) {
 
     int count = 0;
-    vector< vector< vector <city> > > all_cities;
+    vector< vector< vector <city> > > all_cities(a);
     for(int i = 0; i < a; i++) {
         for(int j = 0; j < b; j++) {
             vector<city> cities;

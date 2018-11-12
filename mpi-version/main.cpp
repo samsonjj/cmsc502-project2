@@ -12,6 +12,7 @@ using namespace std;
 int GRID_LENGTH;
 int logLevel;
 
+MPI_Comm cartcomm;
 int dims[2] = {0, 0};
 
 /**
@@ -38,6 +39,128 @@ vector<city> readInCities() {
     return all_cities;
 }
 
+int execSlave(int rank, int nthreads, vector<city> cities) {
+
+    /*
+    if(rank > GRID_LENGTH*GRID_LENGTH) {
+        cout << "unused rank: " << rank << endl;
+        // we don't need this process
+        // we already have enough to cover whole grid
+        return -1;
+    }
+    */
+
+    cout << "slave start " << rank << endl;
+
+    cout << "about to receive " << rank << endl;
+
+
+    if(cities.size() == 0) {
+        // get cities for this block
+        int numCities;
+        MPI_Recv(&numCities, 1, MPI_INT, 0, 0, MPI_COMM_WORLD, MPI_STATUS_IGNORE);
+        float x_coordinates[numCities];
+        float y_coordinates[numCities];
+        int ids[numCities];
+        cout << "recieved" << endl;
+        MPI_Recv(x_coordinates, numCities, MPI_FLOAT, 0, 1, MPI_COMM_WORLD, MPI_STATUS_IGNORE);
+        MPI_Recv(y_coordinates, numCities, MPI_FLOAT, 0, 2, MPI_COMM_WORLD, MPI_STATUS_IGNORE);
+        MPI_Recv(ids, numCities, MPI_INT, 0, 3, MPI_COMM_WORLD, MPI_STATUS_IGNORE);
+
+        cout << "recieved" << endl;
+
+        /* Init cities vector for this one block */
+        for (int i = 0; i < numCities; i++) {
+            city newCity;
+            newCity.x = x_coordinates[i];
+            newCity.y = y_coordinates[i];
+            newCity.id = ids[i];
+            cities.push_back(newCity);
+        }
+    }
+
+    cout << "received cities" << endl;
+
+
+
+    // Run the sequential tsp for this block
+    thread_vars *vars = new thread_vars();
+    vars->cities = cities;
+    solution sol = startDynamicSolution(vars, vars->cities);
+
+    int row = rank / dims[0];
+    int col = rank % dims[0];
+    cout << "(" << row << "," << col << ") " << sol.distance << endl;
+
+    /*
+    // send back the results
+    MPI_Send(&sol.distance, 1, MPI_FLOAT, 0, 4, MPI_COMM_WORLD);
+    MPI_Send(&sol.first_city, 1, MPI_INT, 0, 5, MPI_COMM_WORLD);
+    MPI_Send(&sol.last_city, 1, MPI_INT, 0, 6, MPI_COMM_WORLD);
+    */
+
+    // TODO
+    // increment i to figure out iteration
+    // ONLY SEND if all the ones to the left have sent
+    // every process should send only once
+    // except for last process, which just receives (some or all of iterations)
+    // if rank % 2^(i+1) = 0, this process must receive
+    // if haven't sent, and not receiving, try to send
+    // receive from any
+
+    vector<city> cities_ordered_by_path;
+    for(int i = 0; i < sol.path.size(); i++) {
+        cities_ordered_by_path.push_back(vars->cities(sol.path[i]));
+    }
+
+    int row = rank / dim[0];
+    int col = rank % dim[0];
+    for(int i = 0; pow(2,i) < dim[1]; i++) {
+
+        if(col % pow(2,i+1) == 0) {
+            // get cities from another block in order of path
+            vector<city> cities_incoming;
+            int numCities;
+            MPI_Recv(&numCities, 1, MPI_INT, 0, 0, MPI_COMM_WORLD, MPI_STATUS_IGNORE);
+            float x_coordinates[numCities];
+            float y_coordinates[numCities];
+            int ids[numCities];
+            cout << "recieved" << endl;
+            MPI_Recv(x_coordinates, numCities, MPI_FLOAT, 0, 1, MPI_COMM_WORLD, MPI_STATUS_IGNORE);
+            MPI_Recv(y_coordinates, numCities, MPI_FLOAT, 0, 2, MPI_COMM_WORLD, MPI_STATUS_IGNORE);
+            MPI_Recv(ids, numCities, MPI_INT, 0, 3, MPI_COMM_WORLD, MPI_STATUS_IGNORE);
+
+            cout << "recieved" << endl;
+
+            /* Init cities vector for this one block */
+            for (int i = 0; i < numCities; i++) {
+                city newCity;
+                newCity.x = x_coordinates[i];
+                newCity.y = y_coordinates[i];
+                newCity.id = ids[i];
+                cities_incoming.push_back(newCity);
+            }
+        }
+
+    }
+
+
+    cout << "does it get here?" << endl;
+    if(rank == 0) {
+        for(int i = 0; i < cities.size(); i++) {
+            cout << cities[i].x << " " << cities[i].y << endl;
+        }
+        cout <<  "ready?" << endl << std::flush;
+        cout << "SIZE " << sol.path.size() << endl;
+        for(int i = 0; i < sol.path.size(); i++) {
+            cout << sol.path[i] << endl;
+        }
+    }
+
+    return 0;
+}
+
+
 
 int execMain(int rank, int nthreads, int argc, char* argv[]) {
 
@@ -53,7 +176,6 @@ int execMain(int rank, int nthreads, int argc, char* argv[]) {
     // Take input
     vector< vector <vector<city> > > blocks = generate_cities(dims[0], dims[1], 10);
 
-    cout << "cities are generated" << endl;
 
     // Timing
     struct timespec start, end;
@@ -109,14 +231,15 @@ int execMain(int rank, int nthreads, int argc, char* argv[]) {
         }
     }
 
-    cout << "about to send cities" << endl;
 
     // vector<city> cities_by_id;
     // add cities to vector, and set ids based on order in the grid
     // vector will come out sorted
     int count = 0;
     for(int i = 0; i < blocks.size(); i++) {
-        for(int j = 0; j < blocks[i].size(); j++) {
+
+        // loop through each column, unless we are in the first row. Postpone the first block for last
+        for(int j = (i==0 ? 1 : 0); j < blocks[i].size(); j++) {
 
             /*
             // Set city ids and add to vector
@@ -129,7 +252,6 @@ int execMain(int rank, int nthreads, int argc, char* argv[]) {
 
             // Prepare to send data to the processor that will handle this block
 
-            cout << i << "," << j << endl;
             int numCities = blocks[i][j].size();
             float x_coordinates[numCities];
             float y_coordinates[numCities];
@@ -146,11 +268,12 @@ int execMain(int rank, int nthreads, int argc, char* argv[]) {
             MPI_Send(x_coordinates, numCities, MPI_FLOAT, dest, 1, MPI_COMM_WORLD);
             MPI_Send(y_coordinates, numCities, MPI_FLOAT, dest, 2, MPI_COMM_WORLD);
             MPI_Send(ids, numCities, MPI_INT, dest, 3, MPI_COMM_WORLD);
-            
+
+
         }
     }
 
-    cout << "after sending cities" << endl;
+    cout << "done sending cities" << endl;
 
     /*
 
@@ -284,7 +407,7 @@ int execMain(int rank, int nthreads, int argc, char* argv[]) {
     cout << totalDistance << endl;
      */
 
-
+    execSlave(rank, nthreads, blocks[0][0]);
 
     clock_gettime(CLOCK_MONOTONIC_RAW, &end);
     uint64_t delta_us = (end.tv_sec - start.tv_sec) * 1000000 + (end.tv_nsec - start.tv_nsec) / 1000;
@@ -295,106 +418,31 @@ int execMain(int rank, int nthreads, int argc, char* argv[]) {
 
 }
 
-int execSlave(int rank, int nthreads) {
-
-    /*
-    if(rank > GRID_LENGTH*GRID_LENGTH) {
-        cout << "unused rank: " << rank << endl;
-        // we don't need this process
-        // we already have enough to cover whole grid
-        return -1;
-    }
-    */
-
-    cout << "slave start" << endl;
-
-    // need to get this from the main process
-    int numCities;
-    float x_coordinates[numCities];
-    float y_coordinates[numCities];
-    int ids[numCities];
-
-    cout << "ready to receive cities" << endl;
-
-
-    MPI_Recv(&numCities, 1, MPI_INT, 0, 0, MPI_COMM_WORLD, MPI_STATUS_IGNORE);
-    MPI_Recv(x_coordinates, numCities, MPI_FLOAT, 0, 1, MPI_COMM_WORLD, MPI_STATUS_IGNORE);
-    MPI_Recv(y_coordinates, numCities, MPI_FLOAT, 0, 2, MPI_COMM_WORLD, MPI_STATUS_IGNORE);
-    MPI_Recv(ids, numCities, MPI_INT, 0, 3, MPI_COMM_WORLD, MPI_STATUS_IGNORE);
-
-    /* Init cities vector for this one block */
-    vector<city> cities;
-    for(int i = 0; i < numCities; i++) {
-        city newCity;
-        newCity.x = x_coordinates[i];
-        newCity.y = y_coordinates[i];
-        newCity.id = ids[i];
-        cities.push_back(newCity);
-    }
-
-    cout << "received cities" << endl;
-
-    // Run the sequential tsp for this block
-    thread_vars *vars = new thread_vars();
-    vars->cities = cities;
-    solution sol = startDynamicSolution(vars, vars->cities);
-
-    cout << sol.distance << endl;
-    for(int i = 0; i < sol.path.size(); i++) {
-        cout << sol.path[i] << ",";
-    }
-    cout << endl;
-
-
-    /*
-    // send back the results
-    MPI_Send(&sol.distance, 1, MPI_FLOAT, 0, 4, MPI_COMM_WORLD);
-    MPI_Send(&sol.first_city, 1, MPI_INT, 0, 5, MPI_COMM_WORLD);
-    MPI_Send(&sol.last_city, 1, MPI_INT, 0, 6, MPI_COMM_WORLD);
-    */
-
-    // TODO
-    // increment i to figure out iteration
-    // ONLY SEND if all the ones to the left have sent
-    // every process should send only once
-    // except for last process, which just receives (some or all of iterations)
-    // if rank % 2^(i+1) = 0, this process must receive
-    // if haven't sent, and not receiving, try to send
-    // receive from any
-
-    /*int row = rank / dim[0];
-    int col = rank % dim[0];
-    for(int i = 0; i < dim[1]) {
-
-    }
-     */
-
-    return 0;
-}
-
-
 int main(int argc, char* argv[]) {
 
     MPI_Init(&argc, &argv);
 
-    int rank, nthreads;
-    MPI_Comm_rank(MPI_COMM_WORLD, &rank);
-    MPI_Comm_size(MPI_COMM_WORLD, &nthreads);
-
-    // Calulate Grid Length
-    GRID_LENGTH = floor(sqrt(nthreads));
-
     int periods[2] = {0,0};
-    MPI_Comm cartcomm;
+
+    int rank, nthreads;
+    MPI_Comm_size(MPI_COMM_WORLD, &nthreads);
 
     MPI_Dims_create(nthreads, 2, dims);
     MPI_Cart_create(MPI_COMM_WORLD, 2, dims,
                     periods, 1, &cartcomm);
 
+    MPI_Comm_rank(cartcomm, &rank);
+    MPI_Comm_size(cartcomm, &nthreads);
+
+    // Calulate Grid Length
+    GRID_LENGTH = floor(sqrt(nthreads));
+
+
+    vector<city> cities;
     if(rank==0) {
         execMain(rank, nthreads, argc, argv);
     } else {
-        execSlave(rank, nthreads);
+        execSlave(rank, nthreads, cities);
     }
 
     MPI_Finalize();
