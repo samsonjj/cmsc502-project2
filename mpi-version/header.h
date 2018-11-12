@@ -58,6 +58,10 @@ float calcDistance(float x1, float y1, float x2, float y2) {
     return sqrt((x1-x2)*(x1-x2) + (y1-y2)*(y1-y2));
 }
 
+float calcDistance(city city1, city city2) {
+    return calcDistance(city1.x, city1.y, city2.x, city2.y);
+}
+
 void printMatrix(float** matrix, int r, int c) {
 
     for(int i = 0; i < r; i++) {
