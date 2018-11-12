@@ -18,7 +18,9 @@ int computeDistanceArray(thread_vars *vars, std::vector<city> cities) {
 
 solution dynamicSolution(thread_vars *vars) {
     if(vars->unvisited.size() == 0) {
-        solution sol(0, vars->cities[vars->currentPath.back()].id);
+        vector<int> min_path;
+        min_path.push_back(vars->cities[vars->currentPath.back()].id);
+        solution sol(vars->distance_array[vars->currentPath.back()][vars->currentPath[0]], vars->cities[vars->currentPath.back()].id, min_path);
         return sol;
     } else {
         // explore all unvisited, ignore source
@@ -64,4 +66,26 @@ solution startDynamicSolution(thread_vars *vars, std::vector<city> cities) {
     solution theSolution = dynamicSolution(vars);
     theSolution.first_city = vars->cities[0].id;
     return theSolution;
+}
+
+vector< vector< vector<city> > > generate_cities(int a, int b, int cities_per_block) {
+
+    int count = 0;
+    vector< vector< vector <city> > > all_cities;
+    for(int i = 0; i < a; i++) {
+        for(int j = 0; j < b; j++) {
+            vector<city> cities;
+            for(int k = 0; k < cities_per_block; k++) {
+                // Generate cities which lay inside the ith by jth block (range of whole grid is 500x500)
+                // Generate up to 2 decimal places
+                int x = (rand() % (50000 / b)) / 100.00 + ((500.0 / b) * i);
+                int y = (rand() % (50000 / b)) / 100.00 + ((500.0 / b) * j);
+                city c(x, y, count);
+                cities.push_back(c);
+                count++;
+            }
+            all_cities[i].push_back(cities);
+        }
+    }
+    return all_cities;
 }

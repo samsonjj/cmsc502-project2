@@ -17,6 +17,9 @@ struct city {
     float x;
     float y;
     int id;
+
+    city(void) {}
+    city(int xi, int yi, int idi) : x(xi), y(yi), id(idi) { }
 };
 
 struct solution {
