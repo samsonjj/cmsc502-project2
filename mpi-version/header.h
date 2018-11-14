@@ -19,8 +19,8 @@ struct city {
     int id;
 
     city(void) {}
-    city(int xi, int yi) : x(xi), y(yi) { }
-    city(int xi, int yi, int idi) : x(xi), y(yi), id(idi) { }
+    city(float xi, float yi) : x(xi), y(yi) { }
+    city(float xi, float yi, int idi) : x(xi), y(yi), id(idi) { }
 };
 
 struct solution {

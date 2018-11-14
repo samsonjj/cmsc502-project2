@@ -10,9 +10,9 @@
   </component>
   <component name="ChangeListManager">
     <list default="true" id="ec255e38-a6ec-4a01-933b-f2f6035ad043" name="Default Changelist" comment="">
-      <change beforePath="$PROJECT_DIR$/mpi-version/a.out" beforeDir="false" afterPath="$PROJECT_DIR$/mpi-version/a.out" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/mpi-version/header.h" beforeDir="false" afterPath="$PROJECT_DIR$/mpi-version/header.h" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/mpi-version/main.cpp" beforeDir="false" afterPath="$PROJECT_DIR$/mpi-version/main.cpp" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/mpi-version/test.cpp" beforeDir="false" afterPath="$PROJECT_DIR$/mpi-version/test.cpp" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/mpi-version/tsp.cpp" beforeDir="false" afterPath="$PROJECT_DIR$/mpi-version/tsp.cpp" afterDir="false" />
     </list>
     <option name="EXCLUDED_CONVERTED_TO_IGNORED" value="true" />
     <option name="SHOW_DIALOG" value="false" />
@@ -47,14 +47,14 @@
       </usages-collector>
       <usages-collector id="statistics.file.extensions.edit">
         <counts>
-          <entry key="cpp" value="12903" />
-          <entry key="h" value="293" />
+          <entry key="cpp" value="13484" />
+          <entry key="h" value="313" />
         </counts>
       </usages-collector>
       <usages-collector id="statistics.file.types.edit">
         <counts>
           <entry key="Doxygen file" value="4" />
-          <entry key="ObjectiveC" value="13192" />
+          <entry key="ObjectiveC" value="13793" />
         </counts>
       </usages-collector>
     </session>
@@ -64,8 +64,8 @@
       <file pinned="false" current-in-tab="false">
         <entry file="file://$PROJECT_DIR$/mpi-version/header.h">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="609">
-              <caret line="21" column="39" selection-start-line="21" selection-start-column="39" selection-end-line="21" selection-end-column="39" />
+            <state relative-caret-position="638">
+              <caret line="22" column="30" selection-start-line="22" selection-start-column="30" selection-end-line="22" selection-end-column="30" />
             </state>
           </provider>
         </entry>
@@ -73,8 +73,8 @@
       <file pinned="false" current-in-tab="true">
         <entry file="file://$PROJECT_DIR$/mpi-version/main.cpp">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="870">
-              <caret line="176" column="105" lean-forward="true" selection-start-line="176" selection-start-column="105" selection-end-line="176" selection-end-column="105" />
+            <state relative-caret-position="348">
+              <caret line="21" column="9" selection-start-line="21" selection-start-column="9" selection-end-line="21" selection-end-column="9" />
             </state>
           </provider>
         </entry>
@@ -91,8 +91,8 @@
       <file pinned="false" current-in-tab="false">
         <entry file="file://$PROJECT_DIR$/mpi-version/tsp.cpp">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="-709">
-              <caret line="33" column="34" selection-start-line="33" selection-start-column="25" selection-end-line="33" selection-end-column="34" />
+            <state relative-caret-position="2958">
+              <caret line="102" column="65" selection-start-line="102" selection-start-column="65" selection-end-line="102" selection-end-column="65" />
             </state>
           </provider>
         </entry>
@@ -115,18 +115,18 @@
       <find>Grid_length</find>
       <find>loglevel</find>
       <find>\n\#include \&quot;header\.h\&quot;\n\nusing namespace std\;\n\nint computeDistanceArray\(thread_vars \*vars\, std\:\:vector\&lt;city\&gt; cities\) \{\n    vars\-\&gt;distance_array \= new float\*\[cities\.size\(\)\]\;\n    for\(int i \= 0\; i \&lt; cities\.size\(\)\; i\+\+\) \{\n        vars\-\&gt;distance_array\[i\] \= new float\[cities\.size\(\)\]\;\n        for\(int j \= 0\; j \&lt; cities\.size\(\)\; j\+\+\) \{\n            vars\-\&gt;distance_array\[i\]\[j\] \= calcDistance\(cities\[i\]\.x\, cities\[i\]\.y\, cities\[j\]\.x\, cities\[j\]\.y\)\;\n        \}\n    \}\n\}\n\n\/\/ I need to return the minimum path\, as well as minimum distance\n\/\/ just need to return the ids of the cities in order of the path\n\nsolution dynamicSolution\(thread_vars \*vars\) \{\n    if\(vars\-\&gt;unvisited\.size\(\) \=\= 0\) \{\n        vector\&lt;int\&gt; min_path\;\n        min_path\.push_back\(vars\-\&gt;currentPath\.back\(\)\)\;\n        solution sol\(vars\-\&gt;distance_array\[vars\-\&gt;currentPath\.back\(\)\]\[vars\-\&gt;currentPath\[0\]\]\, vars\-\&gt;cities\[vars\-\&gt;currentPath\.back\(\)\]\.id\, min_path\)\;\n        return sol\;\n    \} else \{\n        \/\/ explore all unvisited\, ignore source\n        float min_dist \= std\:\:numeric_limits\&lt;float\&gt;\:\:max\(\)\;\n        int min_last_city\;\n        vector\&lt;int\&gt; min_path\;\n        for\(int i \= 0\; i \&lt; vars\-\&gt;unvisited\.size\(\)\; i\+\+\) \{\n\n            \/\/ set the new current\n            vars\-\&gt;currentPath\.push_back\(vars\-\&gt;unvisited\[i\]\)\;\n\n            \/\/ set the city as visited\, then check\, then set as unvisited again afterwards\n            vars\-\&gt;unvisited\.erase\(vars\-\&gt;unvisited\.begin\(\) \+ i\)\;\n            solution dSol \= dynamicSolution\(vars\)\;\n            vars\-\&gt;unvisited\.insert\(vars\-\&gt;unvisited\.begin\(\) \+ i\, vars\-\&gt;currentPath\.back\(\)\)\;\n            vars\-\&gt;currentPath\.pop_back\(\)\;\n\n            float dist \= vars\-\&gt;distance_array\[vars\-\&gt;currentPath\.back\(\)\]\[vars\-\&gt;unvisited\[i\]\] \+ dSol\.distance\;\n            if\(dist \&lt; min_dist\) \{\n                min_dist \= dist\;\n                min_last_city \= dSol\.last_city\;\n                min_path \= dSol\.path\;\n            \}\n        \}\n        min_path\.insert\(min_path\.begin\(\)\, vars\-\&gt;cities\[vars\-\&gt;currentPath\.back\(\)\]\.id\)\;\n        solution sol\(min_dist\, min_last_city\, min_path\)\;\n        return sol\;\n    \}\n\}\n\nsolution startDynamicSolution\(thread_vars \*vars\, std\:\:vector\&lt;city\&gt; cities\) \{\n\n    vars\-\&gt;unvisited\.clear\(\)\;\n\n    \/\/ start at 1 since 0 will be source\, and will count as visited\n    for\(unsigned i \= 1\; i \&lt; cities\.size\(\)\; i\+\+\) \{\n        vars\-\&gt;unvisited\.push_back\(i\)\;\n    \}\n    vars\-\&gt;currentPath\.push_back\(0\)\;\n    \n    computeDistanceArray\(vars\, cities\)\;\n\n    solution theSolution \= dynamicSolution\(vars\)\;\n    theSolution\.first_city \= vars\-\&gt;cities\[0\]\.id\;\n    return theSolution\;\n\}\n\nvector\&lt; vector\&lt; vector\&lt;city\&gt; \&gt; \&gt; generate_cities\(int a\, int b\, int cities_per_block\) \{\n\n    int count \= 0\;\n    vector\&lt; vector\&lt; vector \&lt;city\&gt; \&gt; \&gt; all_cities\(a\)\;\n    for\(int i \= 0\; i \&lt; a\; i\+\+\) \{\n        for\(int j \= 0\; j \&lt; b\; j\+\+\) \{\n            vector\&lt;city\&gt; cities\;\n            for\(int k \= 0\; k \&lt; cities_per_block\; k\+\+\) \{\n                \/\/ Generate cities which lay inside the ith by jth block \(range of whole grid is 500x500\)\n                \/\/ Generate up to 2 decimal places\n                int x \= \(rand\(\) \% \(50000 \/ b\)\) \/ 100\.00 \+ \(\(500\.0 \/ b\) \* i\)\;\n                int y \= \(rand\(\) \% \(50000 \/ b\)\) \/ 100\.00 \+ \(\(500\.0 \/ b\) \* j\)\;\n                city c\(x\, y\, count\)\;\n                cities\.push_back\(c\)\;\n                count\+\+\;\n            \}\n            all_cities\[i\]\.push_back\(cities\)\;\n        \}\n    \}\n    return all_cities\;\n\}\n\nvector\&lt;city\&gt; generate_cities\(int b\, int row\, int col\, int cities_per_block\) \{\n    \n            vector\&lt;city\&gt; cities\;\n            for\(int k \= 0\; k \&lt; cities_per_block\; k\+\+\) \{\n                \/\/ Generate cities which lay inside the ith by jth block \(range of whole grid is 500x500\)\n                \/\/ Generate up to 2 decimal places\n                int x \= \(rand\(\) \% \(50000 \/ b\)\) \/ 100\.00 \+ \(\(500\.0 \/ b\) \* i\)\;\n                int y \= \(rand\(\) \% \(50000 \/ b\)\) \/ 100\.00 \+ \(\(500\.0 \/ b\) \* j\)\;\n                city c\(x\, y\, count\)\;\n                cities\.push_back\(c\)\;\n                count\+\+\;\n            \}\n            all_cities\[i\]\.push_back\(cities\)\;\n    return all_cities\;\n\}\n</find>
-      <find>generate</find>
       <find>gener</find>
       <find>dynamic</find>
-      <find>path.push</find>
       <find>8</find>
       <find>.,</find>
       <find>stich</find>
       <find>about to</find>
+      <find>generate</find>
+      <find>path.push</find>
     </findStrings>
     <replaceStrings>
-      <replace>row == 5</replace>
       <replace>stitch</replace>
+      <replace>row == 5</replace>
     </replaceStrings>
   </component>
   <component name="Git.Settings">
@@ -135,9 +135,9 @@
   <component name="IdeDocumentHistory">
     <option name="CHANGED_PATHS">
       <list>
+        <option value="$PROJECT_DIR$/mpi-version/test.cpp" />
         <option value="$PROJECT_DIR$/mpi-version/header.h" />
         <option value="$PROJECT_DIR$/mpi-version/tsp.cpp" />
-        <option value="$PROJECT_DIR$/mpi-version/test.cpp" />
         <option value="$PROJECT_DIR$/mpi-version/main.cpp" />
       </list>
     </option>
@@ -209,12 +209,12 @@
       <workItem from="1541963112992" duration="7954000" />
       <workItem from="1541988844001" duration="21291000" />
       <workItem from="1542170273247" duration="1102000" />
-      <workItem from="1542172683028" duration="18554000" />
+      <workItem from="1542172683028" duration="20154000" />
     </task>
     <servers />
   </component>
   <component name="TimeTrackingManager">
-    <option name="totallyTimeSpent" value="48901000" />
+    <option name="totallyTimeSpent" value="50501000" />
   </component>
   <component name="ToolWindowManager">
     <frame x="134" y="35" width="3706" height="2125" extended-state="6" />
@@ -252,20 +252,6 @@
         <state relative-caret-position="-16372" />
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/mpi-version/header.h">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="609">
-          <caret line="21" column="39" selection-start-line="21" selection-start-column="39" selection-end-line="21" selection-end-column="39" />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/mpi-version/tsp.cpp">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="-709">
-          <caret line="33" column="34" selection-start-line="33" selection-start-column="25" selection-end-line="33" selection-end-column="34" />
-        </state>
-      </provider>
-    </entry>
     <entry file="file://$PROJECT_DIR$/mpi-version/test.cpp">
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="667">
@@ -273,10 +259,24 @@
         </state>
       </provider>
     </entry>
+    <entry file="file://$PROJECT_DIR$/mpi-version/tsp.cpp">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="2958">
+          <caret line="102" column="65" selection-start-line="102" selection-start-column="65" selection-end-line="102" selection-end-column="65" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/mpi-version/header.h">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="638">
+          <caret line="22" column="30" selection-start-line="22" selection-start-column="30" selection-end-line="22" selection-end-column="30" />
+        </state>
+      </provider>
+    </entry>
     <entry file="file://$PROJECT_DIR$/mpi-version/main.cpp">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="870">
-          <caret line="176" column="105" lean-forward="true" selection-start-line="176" selection-start-column="105" selection-end-line="176" selection-end-column="105" />
+        <state relative-caret-position="348">
+          <caret line="21" column="9" selection-start-line="21" selection-start-column="9" selection-end-line="21" selection-end-column="9" />
         </state>
       </provider>
     </entry>
