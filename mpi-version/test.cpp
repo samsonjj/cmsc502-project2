@@ -20,4 +20,6 @@ int main() {
     for(int i = 0; i < sol.path.size(); i++) {
         cout << sol.path[i] << ", ";
     }
+
+    cout << (-1 % 15) << endl;
 }
