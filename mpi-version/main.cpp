@@ -128,12 +128,29 @@ int execSlave(int rank, int nthreads, vector<city> cities) {
 
         MPI_Status status;
         int n;
-        int next_sender_binary = 
-        while(status.MPI_SOURCE % dims[1] + 1 != final_sender) {
-            MPI_Recv(&n, 1, MPI_INT, MPI_ANY_SOURCE, 4, cartcomm, &status);
+
+        unsigned int mask = 1;
+        cout << "start: " << (col & (~mask)) << endl;
+        while((col & (~mask)) != 0) {
+            if(row == 5) cout << "src: " << (col & (~mask)) << endl;
+            MPI_Recv(&n, 1, MPI_INT, (col & (~mask)) - 1 + (row-1)*dims[1], 4, cartcomm, &status);
+            cout << "mask before: " << mask << endl;
+            unsigned int temp = (col & (~mask));
+            while((col & (~mask)) == temp) {
+                mask = (mask << 1) + 1;
+            }
+            cout << "temp: " << temp << (col & (~mask)) << endl;
+
+            cout << "mask after: " << mask << endl;
+
             if(row == 5) cout << "received from " << status.MPI_SOURCE % dims[1] + 1 << endl;
             num+=n;
         }
+        /*while(status.MPI_SOURCE % dims[1] + 1 != final_sender) {
+            MPI_Recv(&n, 1, MPI_INT, MPI_ANY_SOURCE, 4, cartcomm, &status);
+            if(row == 5) cout << "received from " << status.MPI_SOURCE % dims[1] + 1 << endl;
+            num+=n;
+        }*/
         cout << "row " << row << " NUM " << num << endl;
     }
     else {
