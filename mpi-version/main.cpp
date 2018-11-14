@@ -50,7 +50,7 @@ int execSlave(int rank, int nthreads, vector<city> cities) {
     }
     */
 
-    cout << "about to receive " << rank << endl;
+    //cout << "about to receive " << rank << endl;
 
 
     if(cities.size() == 0) {
@@ -60,13 +60,9 @@ int execSlave(int rank, int nthreads, vector<city> cities) {
         float x_coordinates[numCities];
         float y_coordinates[numCities];
         int ids[numCities];
-        cout << "recieved" << endl;
         MPI_Recv(x_coordinates, numCities, MPI_FLOAT, 0, 1, cartcomm, MPI_STATUS_IGNORE);
         MPI_Recv(y_coordinates, numCities, MPI_FLOAT, 0, 2, cartcomm, MPI_STATUS_IGNORE);
         MPI_Recv(ids, numCities, MPI_INT, 0, 3, cartcomm, MPI_STATUS_IGNORE);
-
-        cout << "recieved" << endl;
-
         /* Init cities vector for this one block */
         for (int i = 0; i < numCities; i++) {
             city newCity;
@@ -77,7 +73,7 @@ int execSlave(int rank, int nthreads, vector<city> cities) {
         }
     }
 
-    cout << "received cities" << endl;
+    //cout << "received cities" << endl;
 
 
 
@@ -106,117 +102,145 @@ int execSlave(int rank, int nthreads, vector<city> cities) {
     // if haven't sent, and not receiving, try to send
     // receive from any
 
+    cout << rank << ", (" << row << ", " << col << ")" << endl;
+    MPI_Barrier(cartcomm);
+
     vector<city> cities_ordered_by_path;
     for(int i = 0; i < sol.path.size(); i++) {
         cities_ordered_by_path.push_back(vars->cities[sol.path[i]]);
     }
 
+    // TODO this can be random, since its possible a processor will receive from a different order of blocks ex 6 can receive from 5 first, or 4 then 5 if 5 is slow
     int num = 1;
-    for(int i = 0; (1<<i) <= dims[1]; i++) {
+    if(dims[1] == 1) {
 
-        if(col == dims[1]) {
-            if(row == 1) cout << "waiting to receive " << col << endl;
+    }
+    else if(col == dims[1]) {
+        // cout << "col: " << col << endl;
 
-            int n;
-            MPI_Recv(&n, 1, MPI_INT, MPI_ANY_SOURCE, 4, cartcomm, MPI_STATUS_IGNORE);
-            num += n;
-            if(row == 1) cout << "received! " << col << endl;
-
-            if(row == 1) cout << "NUM " << num << endl;
-
-            break;
+        int final_sender = 1;
+        while(final_sender < dims[1]) {
+            final_sender = final_sender<<1;
         }
+        final_sender = final_sender>>1;
 
-        if(col % (1<<(i+1)) == 0) {
+        if(row == 5) cout << "final sender: " << final_sender << endl;
 
-            if(row == 1) cout << "waiting to receive " << col << endl;
-            int n;
-            MPI_Recv(&n, 1, MPI_INT, MPI_ANY_SOURCE, 4, cartcomm, MPI_STATUS_IGNORE);
-            num += n;
-            if(row == 1) cout << "received! " << col << endl;
-
-
-            // This processor will receive the cities from 1 other block, in the order of their path, with any previously stitched cities removed
-            // Will also receive another list of cities from that block, which is the complete stitched path so far
-            // This processor will calculate which cities to stitch from this list, and this processors cities
-            // It will then calculate new total_distance, and create a new
-
-
-
+        MPI_Status status;
+        int n;
+        int next_sender_binary = 
+        while(status.MPI_SOURCE % dims[1] + 1 != final_sender) {
+            MPI_Recv(&n, 1, MPI_INT, MPI_ANY_SOURCE, 4, cartcomm, &status);
+            if(row == 5) cout << "received from " << status.MPI_SOURCE % dims[1] + 1 << endl;
+            num+=n;
+        }
+        cout << "row " << row << " NUM " << num << endl;
+    }
+    else {
+        for(int i = 0; (1<<i) <= dims[1]; i++) {
 
             /*
-            // get cities from another block in order of path
-            vector<city> cities_incoming_by_path;
-            int numCities;
-            MPI_Recv(&numCities, 1, MPI_INT, 0, 0, cartcomm, MPI_STATUS_IGNORE);
-            float x_coordinates[numCities];
-            float y_coordinates[numCities];
-            int ids[numCities];
-            cout << "recieved" << endl;
-            MPI_Recv(x_coordinates, numCities, MPI_FLOAT, 0, 1, cartcomm, MPI_STATUS_IGNORE);
-            MPI_Recv(y_coordinates, numCities, MPI_FLOAT, 0, 2, cartcomm, MPI_STATUS_IGNORE);
-            MPI_Recv(ids, numCities, MPI_INT, 0, 3, cartcomm, MPI_STATUS_IGNORE);
+            if(col == dims[1]) {
+            if(row == 5) cout << "waiting to receive " << col << endl;
 
-            cout << "recieved" << endl;
+            int n;
+            MPI_Recv(&n, 1, MPI_INT, MPI_ANY_SOURCE, 4, cartcomm, MPI_STATUS_IGNORE);
+            num += n;
+            if(row == 5) cout << "received! " << col << endl;
 
-            // Init cities vector for this one block
-            for (int i = 0; i < numCities; i++) {
+            if(row == 5) cout << "NUM " << num << endl;
+
+            break;
+            }*/
+            if(col % (1<<(i+1)) == 0) {
+
+                if(row == 5) cout << "waiting to receive " << col << endl;
+                int n;
+                MPI_Recv(&n, 1, MPI_INT, MPI_ANY_SOURCE, 4, cartcomm, MPI_STATUS_IGNORE);
+                num += n;
+                if(row == 5) cout << "received! " << col << endl;
+
+                // This processor will receive the cities from 1 other block, in the order of their path, with any previously stitched cities removed
+                // Will also receive another list of cities from that block, which is the complete stitched path so far
+                // This processor will calculate which cities to stitch from this list, and this processors cities
+                // It will then calculate new total_distance, and create a new
+
+
+
+
+                /*
+                // get cities from another block in order of path
+                vector<city> cities_incoming_by_path;
+                int numCities;
+                MPI_Recv(&numCities, 1, MPI_INT, 0, 0, cartcomm, MPI_STATUS_IGNORE);
+                float x_coordinates[numCities];
+                float y_coordinates[numCities];
+                int ids[numCities];
+                cout << "recieved" << endl;
+                MPI_Recv(x_coordinates, numCities, MPI_FLOAT, 0, 1, cartcomm, MPI_STATUS_IGNORE);
+                MPI_Recv(y_coordinates, numCities, MPI_FLOAT, 0, 2, cartcomm, MPI_STATUS_IGNORE);
+                MPI_Recv(ids, numCities, MPI_INT, 0, 3, cartcomm, MPI_STATUS_IGNORE);
+
+                cout << "recieved" << endl;
+
+                // Init cities vector for this one block
+                for (int i = 0; i < numCities; i++) {
                 city newCity;
                 newCity.x = x_coordinates[i];
                 newCity.y = y_coordinates[i];
                 newCity.id = ids[i];
                 cities_incoming_by_path.push_back(newCity);
-            }
+                }
 
-            float distance;
-            MPI_Recv(&distance, 1, MPI_INT, MPI_ANY_SOURCE, 4, cartcomm, MPI_STATUS_IGNORE);
+                float distance;
+                MPI_Recv(&distance, 1, MPI_INT, MPI_ANY_SOURCE, 4, cartcomm, MPI_STATUS_IGNORE);
 
 
-            int min_swap_cost = numeric_limits<int>::max();
-            int min_ul;
-            int min_vl;
-            int min_ur;
-            int min_vr;
-            for(int a1 = 0; a1 < cities_incoming_by_path.size(); a1++) {
+                int min_swap_cost = numeric_limits<int>::max();
+                int min_ul;
+                int min_vl;
+                int min_ur;
+                int min_vr;
+                for(int a1 = 0; a1 < cities_incoming_by_path.size(); a1++) {
                 for(int a2 = 0; a2 < cities_ordered_by_path; a2++) {
 
-                    int b1 = (a1+1) % cities_incoming_by_path.size();
-                    int b2 = (b1+1) % cities_ordered_by_path.size();
+                int b1 = (a1+1) % cities_incoming_by_path.size();
+                int b2 = (b1+1) % cities_ordered_by_path.size();
 
-                    city ul = cities_incoming_by_path[a1];
-                    city vl = cities_incoming_by_path[b1];
-                    city ur = cities_ordered_by_path[a2];
-                    city vr = cities_incoming_by_path[b2];
+                city ul = cities_incoming_by_path[a1];
+                city vl = cities_incoming_by_path[b1];
+                city ur = cities_ordered_by_path[a2];
+                city vr = cities_incoming_by_path[b2];
 
-                    int swap_cost = calcDistance(ul, vr) + calcDistance(vl, ur) - calcDistance(ul, vl) - calcDistance(ur, vr);
-                    if(swap_cost < min_swap_cost) {
-                        min_swap_cost = swap_cost;
-                        min_ul = ul;
-                        min_vl = vl;
-                        min_ur = ur;
-                        min_vr = vr;
-                    }
-                    int swap_cost = calcDistance(ul, ur) + calcDistance(vl, vr) - calcDistance(ul, vl) - calcDistance(ur, vr);
-                    if(swap_cost < min_swap_cost) {
-                        min_swap_cost = swap_cost;
-                        min_ul = ul;
-                        min_vl = vl;
-                        min_ur = ur;
-                        min_vr = vr;
-                    }
+                int swap_cost = calcDistance(ul, vr) + calcDistance(vl, ur) - calcDistance(ul, vl) - calcDistance(ur, vr);
+                if(swap_cost < min_swap_cost) {
+                min_swap_cost = swap_cost;
+                min_ul = ul;
+                min_vl = vl;
+                min_ur = ur;
+                min_vr = vr;
                 }
+                int swap_cost = calcDistance(ul, ur) + calcDistance(vl, vr) - calcDistance(ul, vl) - calcDistance(ur, vr);
+                if(swap_cost < min_swap_cost) {
+                min_swap_cost = swap_cost;
+                min_ul = ul;
+                min_vl = vl;
+                min_ur = ur;
+                min_vr = vr;
+                }
+                }
+                }
+                */
+
             }
-            */
+            else {
+                int dest = col + (1<<i) - 1 >= dims[1]-1 ? dims[1]-1 + (row-1)*dims[1] : (col - 1 + (1<<i)) + (row-1)*dims[1];
+                if(row == 5) cout << "sending to " << dest+1 << " " << col << endl;
+                MPI_Ssend(&num, 1, MPI_INT, dest, 4, cartcomm);
+                break;
+            }
 
         }
-        else {
-            int dest = col + (1<<i) - 1 >= dims[1]-1 ? dims[1]-1 + (row-1)*dims[1] : (col - 1 + (1<<i)) + (row-1)*dims[1];
-            if(dest == rank) continue;
-            if(row == 1) cout << "sending to " << dest+1 << " " << col << endl;
-            MPI_Send(&num, 1, MPI_INT, dest, 4, cartcomm);
-            break;
-        }
-
     }
 
     /*
@@ -230,9 +254,6 @@ int execSlave(int rank, int nthreads, vector<city> cities) {
             cout << sol.path[i] << endl;
         }
     }*/
-
-
-
     return 0;
 }
 
@@ -250,7 +271,7 @@ int execMain(int rank, int nthreads, int argc, char* argv[]) {
 
 
     // Take input
-    vector< vector <vector<city> > > blocks = generate_cities(dims[0], dims[1], 10);
+    vector< vector <vector<city> > > blocks = generate_cities(dims[0], dims[1], 8);
 
 
     // Timing
