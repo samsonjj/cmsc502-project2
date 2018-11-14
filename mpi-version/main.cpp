@@ -115,44 +115,6 @@ int execSlave(int rank, int nthreads, vector<city> cities) {
     if(dims[1] == 1) {
 
     }
-    else if(col == dims[1]) {
-        // cout << "col: " << col << endl;
-
-        int final_sender = 1;
-        while(final_sender < dims[1]) {
-            final_sender = final_sender<<1;
-        }
-        final_sender = final_sender>>1;
-
-        if(row == 5) cout << "final sender: " << final_sender << endl;
-
-        MPI_Status status;
-        int n;
-
-        unsigned int mask = 1;
-        cout << "start: " << (col & (~mask)) << endl;
-        while((col & (~mask)) != 0) {
-            if(row == 5) cout << "src: " << (col & (~mask)) << endl;
-            MPI_Recv(&n, 1, MPI_INT, (col & (~mask)) - 1 + (row-1)*dims[1], 4, cartcomm, &status);
-            cout << "mask before: " << mask << endl;
-            unsigned int temp = (col & (~mask));
-            while((col & (~mask)) == temp) {
-                mask = (mask << 1) + 1;
-            }
-            cout << "temp: " << temp << (col & (~mask)) << endl;
-
-            cout << "mask after: " << mask << endl;
-
-            if(row == 5) cout << "received from " << status.MPI_SOURCE % dims[1] + 1 << endl;
-            num+=n;
-        }
-        /*while(status.MPI_SOURCE % dims[1] + 1 != final_sender) {
-            MPI_Recv(&n, 1, MPI_INT, MPI_ANY_SOURCE, 4, cartcomm, &status);
-            if(row == 5) cout << "received from " << status.MPI_SOURCE % dims[1] + 1 << endl;
-            num+=n;
-        }*/
-        cout << "row " << row << " NUM " << num << endl;
-    }
     else {
         for(int i = 0; (1<<i) <= dims[1]; i++) {
 
@@ -173,7 +135,7 @@ int execSlave(int rank, int nthreads, vector<city> cities) {
 
                 if(row == 5) cout << "waiting to receive " << col << endl;
                 int n;
-                MPI_Recv(&n, 1, MPI_INT, MPI_ANY_SOURCE, 4, cartcomm, MPI_STATUS_IGNORE);
+                MPI_Recv(&n, 1, MPI_INT, col-(1<<i) - 1 + (row-1)*dims[1], 4, cartcomm, MPI_STATUS_IGNORE);
                 num += n;
                 if(row == 5) cout << "received! " << col << endl;
 
@@ -251,6 +213,32 @@ int execSlave(int rank, int nthreads, vector<city> cities) {
 
             }
             else {
+
+                if(col == dims[1]) {
+                    MPI_Status status;
+                    int n;
+
+                    unsigned int mask = 1;
+                    while((col & (~mask)) == col) {
+                        mask = (mask << 1) + 1;
+                    }
+
+                    while((col & (~mask)) != 0) {
+                        if(row == 5) cout << "src: " << (col & (~mask)) << endl;
+                        if(row == 5) cout << "WAITING TO RECEIVE FROM " << (col & (~mask)) << endl;
+                        MPI_Recv(&n, 1, MPI_INT, (col & (~mask)) - 1 + (row-1)*dims[1], 4, cartcomm, &status);
+                        unsigned int temp = (col & (~mask));
+                        while((col & (~mask)) == temp) {
+                            mask = (mask << 1) + 1;
+                        }
+
+                        num+=n;
+                    }
+
+                    cout << "row " << row << " NUM " << num << endl;
+                    break;
+                }
+
                 int dest = col + (1<<i) - 1 >= dims[1]-1 ? dims[1]-1 + (row-1)*dims[1] : (col - 1 + (1<<i)) + (row-1)*dims[1];
                 if(row == 5) cout << "sending to " << dest+1 << " " << col << endl;
                 MPI_Ssend(&num, 1, MPI_INT, dest, 4, cartcomm);
