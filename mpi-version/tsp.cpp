@@ -99,10 +99,9 @@ vector<city> generate_cities(int b, int row, int col, int num_cities) {
     for (int k = 0; k < num_cities; k++) {
         // Generate cities which lay inside the ith by jth block (range of whole grid is 500x500)
         // Generate up to 2 decimal places
-        float x = ((rand() % (50000 / b)) + (50000 / b) * (row-1)) / 100.0;
-        float y = ((rand() % (50000 / b)) + (50000 / b) * (col-1)) / 100.0;
+        float x = ((rand() % (50000 / b)) + (50000 / b) * (col-1)) / 100.0;
+        float y = ((rand() % (50000 / b)) + (50000 / b) * (row-1)) / 100.0;
         city c(x, y, k);
-        cout << "(" << c.x << "," << c.y << ")" << endl;
 
         cities.push_back(c);
     }

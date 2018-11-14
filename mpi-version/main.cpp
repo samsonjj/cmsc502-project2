@@ -51,6 +51,8 @@ vector<city> receive_cities(int src) {
 
 vector<city> stitch_cities_row(vector<city> cities1, vector<city> cities2, float distance2, solution *sol) {
 
+    int in = cities1.size() + cities2.size();
+
     int min_swap_cost = numeric_limits<int>::max();
     int min_ul;
     int min_vl;
@@ -85,6 +87,11 @@ vector<city> stitch_cities_row(vector<city> cities1, vector<city> cities2, float
             uri = vri;
             vri = temp;
 
+            ul = cities1[uli];
+            vl = cities1[vli];
+            ur = cities2[uri];
+            vr = cities2[vri];
+
             swap_cost = calcDistance(ul, ur) + calcDistance(vl, vr) - calcDistance(ul, vl) - calcDistance(ur, vr);
             if(swap_cost < min_swap_cost) {
                 min_swap_cost = swap_cost;
@@ -98,23 +105,26 @@ vector<city> stitch_cities_row(vector<city> cities1, vector<city> cities2, float
 
     vector<city> stitched_cities;
 
-    for (int i = 0; i <= min_ul; i++) {
-        stitched_cities.push_back(cities1[i]);
+    int c1 = 0, c2 = 0, c3 = 0;
+
+    for (int i = min_vl; true; i++) {
+        stitched_cities.push_back(cities1[i%cities1.size()]);
+        c1++;
+        if(i%cities1.size() == min_ul) break;
     }
     if(min_ur < min_vr) {
         for (int i = min_ur; true; i = (i-1 + cities2.size()) % cities2.size()) {
             stitched_cities.push_back(cities2[i]);
+            c2++;
             if(i == min_vr) break;
         }
     }
     else {
         for (int i = min_ur; true; i = (i+1) % cities2.size()) {
             stitched_cities.push_back(cities2[i]);
+            c2++;
             if(i == min_vr) break;
         }
-    }
-    for (int i = min_vl; i < cities1.size(); i++) {
-        stitched_cities.push_back(cities1[i]);
     }
 
     sol->distance += distance2 + min_swap_cost;
@@ -145,7 +155,6 @@ int doThing(int rank, int nthreads) {
         cities_ordered_by_path.push_back(vars->cities[sol.path[i]]);
     }
 
-
     int num = 1;
     if(dims[1] == 1) {
 
@@ -160,12 +169,6 @@ int doThing(int rank, int nthreads) {
                 vector<city> other_cities = receive_cities(src);
                 float other_distance;
                 MPI_Recv(&other_distance, 1, MPI_FLOAT, src, 0, cartcomm, MPI_STATUS_IGNORE);
-
-                if(row == 100) {
-                    for(int i = 0 ; i < other_cities.size(); i++) {
-                        cout << other_cities[i].x << ", " << other_cities[i].y << endl;
-                    }
-                }
 
                 cities_ordered_by_path = stitch_cities_row(other_cities, cities_ordered_by_path, other_distance, &sol);
 
@@ -199,9 +202,9 @@ int doThing(int rank, int nthreads) {
                     }
 
                     cout << "row " << row << " NUM " << cities_ordered_by_path.size() << ", " << sol.distance << endl;
-                    if(row == 100) {
+                    if(row == 1) {
                         for(int i = 0 ; i < cities_ordered_by_path.size(); i++) {
-                            cout << cities_ordered_by_path[i].x << ", " << cities_ordered_by_path[i].y << endl;
+                            cout << cities_ordered_by_path[i].x << " " << cities_ordered_by_path[i].y << endl;
                         }
                     }
                     break;
@@ -211,11 +214,6 @@ int doThing(int rank, int nthreads) {
                                (col - 1 + (1 << i)) + (row - 1) * dims[1];
 
                     // SEND CITIES
-                    if(row == 1) {
-                        for(int i = 0 ; i < cities_ordered_by_path.size(); i++) {
-                            cout << cities_ordered_by_path[i].x << ", " << cities_ordered_by_path[i].y << endl;
-                        }
-                    }
                     send_cities(cities_ordered_by_path, dest);
                     MPI_Send(&sol.distance, 1, MPI_FLOAT, dest, 0, cartcomm);
 
