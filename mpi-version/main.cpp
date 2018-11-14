@@ -15,6 +15,8 @@ int dims[2] = {0, 0};
 
 const int CITIES_PER_BLOCK = 8;
 
+
+
 void send_cities(vector<city> cities, int dest) {
     int numCities = cities.size();
     MPI_Send(&numCities, 1, MPI_INT, dest, 0, cartcomm);
@@ -49,10 +51,14 @@ vector<city> receive_cities(int src) {
     return cities;
 }
 
+
+
+/*
+ * stitch together cities1 and cities2, store the final distance in sol->distance
+ */
 vector<city> stitch_cities_row(vector<city> cities1, vector<city> cities2, float distance2, solution *sol) {
 
-    int in = cities1.size() + cities2.size();
-
+    // Store min swap_cost and relavent city indexes
     int min_swap_cost = numeric_limits<int>::max();
     int min_ul;
     int min_vl;
@@ -103,6 +109,7 @@ vector<city> stitch_cities_row(vector<city> cities1, vector<city> cities2, float
         }
     }
 
+    // Push cities to a new vector, which has them in the order of the new path
     vector<city> stitched_cities;
 
     int c1 = 0, c2 = 0, c3 = 0;
@@ -132,7 +139,25 @@ vector<city> stitch_cities_row(vector<city> cities1, vector<city> cities2, float
     return stitched_cities;
 }
 
-int doThing(int rank, int nthreads) {
+
+
+
+
+
+
+
+/*
+ * This is the JUICE of this application
+ * Lot of thing happen here
+ *
+ * FIRST: We generate cities based off of row and col (row and col are indexed starting at 1)
+ * SECOND: We stitch by row, every processor besides the last should quit after this step
+ * THIRD: We stitch by column, every processor besides the bottom right in the cartesian topology should quit
+ * LASTLY: We print the output
+ *
+ * We check during stitching to see if there are inversions
+ */
+int compute_tsp(int rank) {
 
     int row = rank / dims[1] + 1;
     int col = rank % dims[1] + 1;
@@ -145,17 +170,17 @@ int doThing(int rank, int nthreads) {
     solution sol = startDynamicSolution(vars, vars->cities);
 
 
-    // TODO
-    // if col % 2^(i+1) == 0, this process must receive
-    // else, send, then quit UNLESS we are the last block, which is special
-    // last block must receive according to the masking algorithm below
 
     vector<city> cities_ordered_by_path;
     for(int i = 0; i < sol.path.size(); i++) {
         cities_ordered_by_path.push_back(vars->cities[sol.path[i]]);
     }
 
-    int num = 1;
+
+
+    // if col % 2^(i+1) == 0, this process must receive
+    // else, send, then quit UNLESS we are the last block, which is special
+    // last block must receive according to the masking algorithm below
     if(dims[1] == 1) {
 
     }
@@ -171,8 +196,6 @@ int doThing(int rank, int nthreads) {
                 MPI_Recv(&other_distance, 1, MPI_FLOAT, src, 0, cartcomm, MPI_STATUS_IGNORE);
 
                 cities_ordered_by_path = stitch_cities_row(other_cities, cities_ordered_by_path, other_distance, &sol);
-
-                if(row == 1) printf("Received cities, col %d, # of cities is %d, distance is %f\n", col, cities_ordered_by_path.size(), sol.distance);
 
 
             }
@@ -193,7 +216,6 @@ int doThing(int rank, int nthreads) {
                         MPI_Recv(&other_distance, 1, MPI_FLOAT, src, 0, cartcomm, MPI_STATUS_IGNORE);
 
                         cities_ordered_by_path = stitch_cities_row(other_cities, cities_ordered_by_path, other_distance, &sol);
-                        if(row == 1) printf("Received cities, col %d, # of cities is %d\n", col, cities_ordered_by_path.size());
 
                         unsigned int temp = (col & (~mask));
                         while((col & (~mask)) == temp) {
@@ -201,12 +223,6 @@ int doThing(int rank, int nthreads) {
                         }
                     }
 
-                    cout << "row " << row << " NUM " << cities_ordered_by_path.size() << ", " << sol.distance << endl;
-                    if(row == 1) {
-                        for(int i = 0 ; i < cities_ordered_by_path.size(); i++) {
-                            cout << cities_ordered_by_path[i].x << " " << cities_ordered_by_path[i].y << endl;
-                        }
-                    }
                     break;
                 }
                 else {
@@ -221,6 +237,14 @@ int doThing(int rank, int nthreads) {
                 }
             }
 
+        }
+    }
+
+    if(row == dims[1] && col == dims[1])
+    {
+        cout << "Distance: " << sol.distance << endl;
+        for(int i = 0; i < cities_ordered_by_path.size(); i++) {
+            printf("%7.2f %7.2f\n", cities_ordered_by_path[i].x, cities_ordered_by_path[i].y);
         }
     }
 
@@ -255,7 +279,7 @@ int main(int argc, char* argv[]) {
     if(rank == 0) printf("dims: %d, %d\n", dims[0], dims[1]);
 
 
-    doThing(rank, nthreads);
+    compute_tsp(rank);
 
     MPI_Finalize();
 
