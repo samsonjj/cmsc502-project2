@@ -27,25 +27,25 @@ struct city {
 // algorithm variables
 int source;
 int current;
-vector<city> cities;
+vector <city> cities;
 vector<int> unvisited;
 
 // distances array
-float** distances_array;
+float **distances_array;
 
 float getDist(int city1, int city2) {
     return distances_array[city1][city2];
 }
 
 float dynamicSolution() {
-    if(unvisited.size() == 0) {
+    if (unvisited.size() == 0) {
         return getDist(current, source);
     } else {
         // explore all unvisited, ignore source
         float store_current = current;
         int nextCity;
         float min_dist = numeric_limits<float>::max();
-        for(int i = 0; i < unvisited.size(); i++) {
+        for (int i = 0; i < unvisited.size(); i++) {
 
             // set the new current
             nextCity = unvisited[i];
@@ -55,7 +55,7 @@ float dynamicSolution() {
             unvisited.erase(unvisited.begin() + i);
             float dist = getDist(store_current, nextCity) + dynamicSolution();
             unvisited.insert(unvisited.begin() + i, nextCity);
-            if(dist < min_dist) min_dist = dist;
+            if (dist < min_dist) min_dist = dist;
         }
         current = store_current;
         return min_dist;
@@ -67,7 +67,7 @@ float startDynamicSolution() {
     unvisited.clear();
 
     // start at 1 since 0 will be source, and will count as visited
-    for(unsigned i = 1; i < cities.size(); i++) {
+    for (unsigned i = 1; i < cities.size(); i++) {
         unvisited.push_back(i);
     }
 
@@ -86,7 +86,7 @@ int readInCities() {
 
     string x_pos;
     string y_pos;
-    while(file >> x_pos >> y_pos) {
+    while (file >> x_pos >> y_pos) {
         city newCity;
         newCity.x = atof(x_pos.c_str());
         newCity.y = atof(y_pos.c_str());
@@ -95,14 +95,15 @@ int readInCities() {
 }
 
 int computeDistancesArray() {
-    distances_array = new float*[cities.size()];
-    for(int i = 0; i < cities.size(); i++) {
+    distances_array = new float *[cities.size()];
+    for (int i = 0; i < cities.size(); i++) {
         distances_array[i] = new float[cities.size()];
     }
 
-    for(int i = 0; i < cities.size(); i++) {
-        for(int j = 0; j < cities.size(); j++) {
-            float distance = sqrt((cities[i].x-cities[j].x)*(cities[i].x-cities[j].x) + (cities[i].y-cities[j].y)*(cities[i].y-cities[j].y));
+    for (int i = 0; i < cities.size(); i++) {
+        for (int j = 0; j < cities.size(); j++) {
+            float distance = sqrt((cities[i].x - cities[j].x) * (cities[i].x - cities[j].x) +
+                                  (cities[i].y - cities[j].y) * (cities[i].y - cities[j].y));
             distances_array[i][j] = distance;
         }
     }
@@ -110,7 +111,7 @@ int computeDistancesArray() {
 
 
 int main() {
-    
+
     struct timespec start, end;
     clock_gettime(CLOCK_MONOTONIC_RAW, &start);
 
@@ -125,11 +126,11 @@ int main() {
 
     cout << "minimum distance is " << dist << endl;
 
+
     clock_gettime(CLOCK_MONOTONIC_RAW, &end);
     uint64_t delta_us = (end.tv_sec - start.tv_sec) * 1000000 + (end.tv_nsec - start.tv_nsec) / 1000;
-    printf("took %lu\n", delta_us);
-
-
+    printf("took %f seconds\n", delta_us / 1000000.0);
+    
 
     return 0;
 }

@@ -19,7 +19,7 @@ using namespace std;
 MPI_Comm cartcomm;
 int dims[2] = {0, 0};
 
-const int CITIES_PER_BLOCK = 8;
+const int CITIES_PER_BLOCK = 9;
 
 
 void send_cities(vector <city> cities, int dest) {
@@ -113,26 +113,27 @@ vector <city> stitch_cities_row(vector <city> cities1, vector <city> cities2, fl
         }
     }
 
-    if (doIntersect(cities1[min_ul], cities2[min_ur], cities1[min_vl], cities2[min_vr]))
-        cout << "the stitch is inverted!";
-
-    for (int i = 0; i < cities1.size(); i++) {
-        if (i != min_ul && i != min_vl && (i + 1) % cities1.size() != min_ul && (i + 1) % cities1.size() != min_vl) {
-            if (doIntersect(cities1[min_ul], cities2[min_ur], cities1[i], cities1[(i + 1) % cities1.size()]))
-                cout << "stitch1 caused an inversion!" << endl;
-            if (doIntersect(cities1[min_vl], cities2[min_vr], cities1[i], cities1[(i + 1) % cities1.size()]))
-                cout << "stitch2 caused an inversion!" << endl;
-        }
-    }
-
-    for (int i = 0; i < cities2.size(); i++) {
-        if (i != min_ur && i != min_vr && (i + 1) % cities2.size() != min_ur && (i + 1) % cities2.size() != min_vr) {
-            if (doIntersect(cities1[min_ul], cities2[min_ur], cities2[i], cities2[(i + 1) % cities2.size()]))
-                cout << "stitch3 caused an inversion!" << endl;
-            if (doIntersect(cities1[min_vl], cities2[min_vr], cities2[i], cities2[(i + 1) % cities2.size()]))
-                cout << "stitch4 caused an inversion!" << endl;
-        }
-    }
+//    TEST FOR INVERSIONS (There are inversions)
+//    if (doIntersect(cities1[min_ul], cities2[min_ur], cities1[min_vl], cities2[min_vr]))
+//        cout << "the stitch is inverted!";
+//
+//    for (int i = 0; i < cities1.size(); i++) {
+//        if (i != min_ul && i != min_vl && (i + 1) % cities1.size() != min_ul && (i + 1) % cities1.size() != min_vl) {
+//            if (doIntersect(cities1[min_ul], cities2[min_ur], cities1[i], cities1[(i + 1) % cities1.size()]))
+//                cout << "stitch1 caused an inversion!" << endl;
+//            if (doIntersect(cities1[min_vl], cities2[min_vr], cities1[i], cities1[(i + 1) % cities1.size()]))
+//                cout << "stitch2 caused an inversion!" << endl;
+//        }
+//    }
+//
+//    for (int i = 0; i < cities2.size(); i++) {
+//        if (i != min_ur && i != min_vr && (i + 1) % cities2.size() != min_ur && (i + 1) % cities2.size() != min_vr) {
+//            if (doIntersect(cities1[min_ul], cities2[min_ur], cities2[i], cities2[(i + 1) % cities2.size()]))
+//                cout << "stitch3 caused an inversion!" << endl;
+//            if (doIntersect(cities1[min_vl], cities2[min_vr], cities2[i], cities2[(i + 1) % cities2.size()]))
+//                cout << "stitch4 caused an inversion!" << endl;
+//        }
+//    }
 
 
     // Push cities to a new vector, which has them in the order of the new path
@@ -160,7 +161,45 @@ vector <city> stitch_cities_row(vector <city> cities1, vector <city> cities2, fl
     }
 
 
-    sol->distance += distance2 + min_swap_cost;
+
+    // Fix inversions (Yes, there are inversions)
+    bool fixed = false;
+    while (!fixed) {
+        fixed = true;
+        for (int i = 0; i < stitched_cities.size(); i++) {
+            for (int j = i + 2; j < stitched_cities.size(); j++) {
+                if ((j + 1) % stitched_cities.size() == i) continue;
+                if (doIntersect(stitched_cities[i], stitched_cities[i + 1], stitched_cities[j],
+                                stitched_cities[(j + 1) % stitched_cities.size()])) {
+
+                    vector <city> inverted_fixed;
+                    for (int k = 0; k <= i; k++) {
+                        inverted_fixed.push_back(stitched_cities[k]);
+                    }
+
+                    for (int k = j; k >= i + 1; k--) {
+                        inverted_fixed.push_back(stitched_cities[k]);
+                    }
+
+                    for (int k = j + 1; k != 0 && k < stitched_cities.size(); k++) {
+                        inverted_fixed.push_back(stitched_cities[k]);
+                    }
+
+                    stitched_cities = inverted_fixed;
+                    fixed = false;
+                }
+
+            }
+        }
+    }
+
+    // Calculate new total distance, since inversion swapping can make it weird
+    float sum = 0;
+    for (int i = 0; i < stitched_cities.size(); i++) {
+        sum += calcDistance(stitched_cities[i], stitched_cities[(i + 1) % stitched_cities.size()]);
+    }
+
+    sol->distance = sum;
 
     return stitched_cities;
 }
@@ -323,7 +362,7 @@ void compute_tsp(int rank) {
 
     MPI_Barrier(cartcomm);
 
-    if(row == dims[0] && col == dims[1]) {
+    if (row == dims[0] && col == dims[1]) {
         cout << endl << "Distance: " << sol.distance << endl << endl;
 
         printf("%12s %12s\n\n", "x", "y");
@@ -339,7 +378,7 @@ void compute_tsp(int rank) {
 
 int main(int argc, char *argv[]) {
 
-    srand();
+    srand(time(NULL));
 
     // Timing
     struct timespec start, end;
@@ -368,11 +407,14 @@ int main(int argc, char *argv[]) {
 
     compute_tsp(rank);
 
+    if (rank == dims[0] * dims[1] - 1) {
+        clock_gettime(CLOCK_MONOTONIC_RAW, &end);
+        uint64_t delta_us = (end.tv_sec - start.tv_sec) * 1000000 + (end.tv_nsec - start.tv_nsec) / 1000;
+        printf("took %f seconds\n", delta_us / 1000000.0   );
+    }
+
     MPI_Finalize();
 
-    clock_gettime(CLOCK_MONOTONIC_RAW, &end);
-    uint64_t delta_us = (end.tv_sec - start.tv_sec) * 1000000 + (end.tv_nsec - start.tv_nsec) / 1000;
-    //printf("took %lu\n", delta_us);
 
     return 0;
 }

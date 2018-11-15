@@ -15,13 +15,13 @@
 
 using namespace std;
 
-const int CITIES_PER_BLOCK = 4;
+const int CITIES_PER_BLOCK = 10;
 int nthreads;
 int b;
 
+// Shared memory between threads
 pthread_t **threadArray;
 pthread_mutex_t **mutexArray;
-
 vector <city> **all_cities;
 solution **all_solutions;
 
@@ -30,50 +30,8 @@ solution **all_solutions;
  * stitch together cities1 and cities2, store the final distance in sol->distance
  */
 vector <city>
-stitch_cities_row(vector <city> cities1, vector <city> cities2, float distance2, solution *sol, int fromRow, int fromCol) {
-
-//    bool fixed = false;
-//    while(!fixed) {
-//        fixed = true;
-//        for (int i = 0; i < cities1.size(); i++) {
-//            for (int j = i + 2; j < cities1.size(); j++) {
-//                if((j+1) % cities1.size() == i) continue;
-//                if (doIntersect(cities1[i], cities1[i + 1], cities1[j],
-//                                cities1[(j + 1) % cities1.size()])) {
-//
-//                    vector <city> inverted_fixed;
-//                    for (int k = 0; k <= i; k++) {
-//                        inverted_fixed.push_back(cities1[k]);
-//                    }
-//
-//                    for (int k = j; k >= i + 1; k--) {
-//                        inverted_fixed.push_back(cities1[k]);
-//                    }
-//
-//                    for (int k = j + 1; k != 0 && k < cities1.size(); k++) {
-//                        inverted_fixed.push_back(cities1[k]);
-//                    }
-//
-//
-//                    cout << cities1[i].x << "," << cities1[i].y << endl;
-//                    cout << cities1[i+1].x << "," << cities1[i+1].y << endl;
-//                    cout << cities1[j].x << "," << cities1[j].y << endl;
-//                    cout << cities1[(j + 1) % cities1.size()].x << "," << cities1[(j + 1) % cities1.size()].y << endl;
-//                    cout << cities1[0].x << "," << cities1[0].y << endl;
-//                    cout << cities1[1].x << "," << cities1[1].y << endl;
-//                    cout << cities1[2].x << "," << cities1[2].y << endl;
-//                    cout << cities1[3].x << "," << cities1[3].y << endl;
-//
-//                    cities1 = inverted_fixed;
-//                    fixed = false;
-//                    cout << "Oh hell no" << cities1.size() << " " << i << " " << i+1 << " "<< j << " " << (j+1) % cities1.size() << endl;
-//                    for(int p = 0; p < all_solutions[fromRow][fromCol].path.size(); p++) {
-//                        cout << all_solutions[fromRow][fromCol].path[p] << ", ";
-//                    }
-//                }
-//            }
-//        }
-//    }
+stitch_cities_row(vector <city> cities1, vector <city> cities2, float distance2, solution *sol, int fromRow,
+                  int fromCol) {
 
     // Store min swap_cost and relavent city indexes
     int min_swap_cost = numeric_limits<int>::max();
@@ -82,6 +40,7 @@ stitch_cities_row(vector <city> cities1, vector <city> cities2, float distance2,
     int min_ur;
     int min_vr;
 
+    // Find cities to swap
     for (int i = 0; i < cities1.size(); i++) {
         for (int j = 0; j < cities2.size(); j++) {
 
@@ -126,6 +85,7 @@ stitch_cities_row(vector <city> cities1, vector <city> cities2, float distance2,
         }
     }
 
+//    UNCOMMENT TO TEST FOR INVERSIONS
 //    if (doIntersect(cities1[min_ul], cities2[min_ur], cities1[min_vl], cities2[min_vr])) {
 //        cout << "the stitch is inverted!" << from << "," << to << endl;
 //    }
@@ -156,35 +116,29 @@ stitch_cities_row(vector <city> cities1, vector <city> cities2, float distance2,
 
     // Push cities to a new vector, which has them in the order of the new path
     vector <city> stitched_cities;
-
-    int c1 = 0, c2 = 0, c3 = 0;
-
     for (int i = min_vl; true; i++) {
         stitched_cities.push_back(cities1[i % cities1.size()]);
-        c1++;
         if (i % cities1.size() == min_ul) break;
     }
     if ((min_ur - min_vr + cities2.size()) % cities2.size() == cities2.size() - 1) {
         for (int i = min_ur; true; i = (i - 1 + cities2.size()) % cities2.size()) {
             stitched_cities.push_back(cities2[i]);
-            c2++;
             if (i == min_vr) break;
         }
     } else {
         for (int i = min_ur; true; i = (i + 1) % cities2.size()) {
             stitched_cities.push_back(cities2[i]);
-            c3++;
             if (i == min_vr) break;
         }
     }
 
-
+    // Fix inversions (Yes, there are inversions)
     bool fixed = false;
-    while(!fixed) {
+    while (!fixed) {
         fixed = true;
         for (int i = 0; i < stitched_cities.size(); i++) {
             for (int j = i + 2; j < stitched_cities.size(); j++) {
-                if((j+1) % stitched_cities.size() == i) continue;
+                if ((j + 1) % stitched_cities.size() == i) continue;
                 if (doIntersect(stitched_cities[i], stitched_cities[i + 1], stitched_cities[j],
                                 stitched_cities[(j + 1) % stitched_cities.size()])) {
 
@@ -209,8 +163,13 @@ stitch_cities_row(vector <city> cities1, vector <city> cities2, float distance2,
         }
     }
 
+    // Calculate new total distance, since inversion swapping can make it weird
+    float sum = 0;
+    for (int i = 0; i < stitched_cities.size(); i++) {
+        sum += calcDistance(stitched_cities[i], stitched_cities[(i + 1) % stitched_cities.size()]);
+    }
 
-    sol->distance += distance2 + min_swap_cost;
+    sol->distance = sum;
 
     return stitched_cities;
 }
@@ -231,18 +190,16 @@ void *methodForThreads(void *pointer) {
     vars->cities = all_cities[row - 1][col - 1];
     all_solutions[row - 1][col - 1] = startDynamicSolution(vars, vars->cities);
 
+
+    // Get the full path of cities
     vector <city> cities_ordered_by_path;
-    for (int i = 0; i < all_solutions[row-1][col-1].path.size(); i++) {
+    for (int i = 0; i < all_solutions[row - 1][col - 1].path.size(); i++) {
         cities_ordered_by_path.push_back(vars->cities[all_solutions[row - 1][col - 1].path[i]]);
     }
 
+    // Save them in shared memory
     all_cities[row - 1][col - 1] = cities_ordered_by_path;
 
-//    if(row == 1 && col == 1) {
-//        for(int i = 0; i < all_cities[row-1][col-1].size(); i++) {
-//            cout << all_cities[row-1][col-1][i].x << ", " << all_cities[row-1][col-1][i].y << endl;
-//        }
-//    }
 
 
 
@@ -290,14 +247,10 @@ void *methodForThreads(void *pointer) {
                         int srcRow = row - 1;
                         int srcCol = (col & (~mask)) - 1;
 
-//                        cout << "about to lock at " << srcRow << "," << srcCol << " by " << threadNum << endl;
-                        if (row == 1) cout << col << " waiting to receive from " << (srcCol + 1) << endl;
 
                         pthread_mutex_lock(&mutexArray[srcRow][srcCol]);
-//                        cout << "locked at " << srcRow << "," << srcCol << "by " << threadNum << endl;
                         float other_distance = all_solutions[srcRow][srcCol].distance;
                         vector <city> other_cities = all_cities[srcRow][srcCol];
-                        if (row == 1) cout << col << " received from " << srcCol + 1 << endl;
 
 
                         vector <city> stitched = stitch_cities_row(other_cities, all_cities[row - 1][col - 1],
@@ -313,14 +266,9 @@ void *methodForThreads(void *pointer) {
 
                     break;
                 } else {
-//                    int dest = col + (1 << i) - 1 >= dims[1] - 1 ? dims[1] - 1 + (row - 1) * dims[1] :
-//                               (col - 1 + (1 << i)) + (row - 1) * dims[1];
-//                    int destRow = row-1;
-//                    int destCol = col + (1 << i) - 1 >= b ? b-1 : col + (1 << 1) - 1;
-//
-                    // SEND CITIES
+
+                    // SEND CITIES, we send by unlocking the sender's mutex lock, this allows the receiver to continue by locking it again
                     pthread_mutex_unlock(&mutexArray[row - 1][col - 1]);
-//                    cout << "sent! from " << threadNum << endl;
 
                     break;
                 }
@@ -346,14 +294,10 @@ void *methodForThreads(void *pointer) {
                     int srcCol = col - 1;
                     int srcRow = row - (1 << i) - 1;
 
-//                    if(row==1) cout << col << " waiting to receive from " << srcCol+1 << endl;
-                    cout << row << " Waiting to receive from " << (srcRow + 1) << endl;
                     pthread_mutex_lock(&mutexArray[srcRow][srcCol]);
                     float other_distance = all_solutions[srcRow][srcCol].distance;
                     vector <city> other_cities = all_cities[srcRow][srcCol];
-                    cout << row << " Received from " << srcRow + 1 << endl;
 
-//                    if(row==1) cout << col << " received from " << srcCol+1 << endl;
 
                     vector <city> stitched = stitch_cities_row(other_cities, all_cities[row - 1][col - 1],
                                                                other_distance, &all_solutions[row - 1][col - 1],
@@ -377,14 +321,9 @@ void *methodForThreads(void *pointer) {
                             int srcRow = (row & (~mask)) - 1;
                             int srcCol = col - 1;
 
-//                        cout << "about to lock at " << srcRow << "," << srcCol << " by " << threadNum << endl;
-                            cout << row << " Waiting to receive from " << (srcRow + 1) << endl;
-
                             pthread_mutex_lock(&mutexArray[srcRow][srcCol]);
-//                        cout << "locked at " << srcRow << "," << srcCol << "by " << threadNum << endl;
                             float other_distance = all_solutions[srcRow][srcCol].distance;
                             vector <city> other_cities = all_cities[srcRow][srcCol];
-                            cout << row << " Received from " << srcRow + 1 << endl;
 
 
                             vector <city> stitched = stitch_cities_row(other_cities, all_cities[row - 1][col - 1],
@@ -400,15 +339,9 @@ void *methodForThreads(void *pointer) {
 
                         break;
                     } else {
-//                    int dest = col + (1 << i) - 1 >= dims[1] - 1 ? dims[1] - 1 + (row - 1) * dims[1] :
-//                               (col - 1 + (1 << i)) + (row - 1) * dims[1];
-//                    int destRow = row-1;
-//                    int destCol = col + (1 << i) - 1 >= b ? b-1 : col + (1 << 1) - 1;
-//
+
                         // SEND CITIES
-                        cout << "Sending from " << col << endl;
                         pthread_mutex_unlock(&mutexArray[row - 1][col - 1]);
-//                    cout << "sent! from " << threadNum << endl;
 
                         break;
                     }
@@ -416,23 +349,12 @@ void *methodForThreads(void *pointer) {
 
             }
         }
-
-
-
-
-
-
-
-//
-//        if(col == b) {
-//            cout << all_cities[row-1][col-1].size() << ", " << all_solutions[row-1][col-1].distance << endl;
-//        }
-
     }
 
+    // Print
     if (row == b && col == b) {
         cout << endl << "Distance: " << all_solutions[row - 1][col - 1].distance << endl << endl;
-        cout << endl << "Num: " << all_cities[row-1][col-1].size() << endl;
+        cout << endl << "Num: " << all_cities[row - 1][col - 1].size() << endl;
 
         printf("%12s %12s\n\n", "x", "y");
 
@@ -498,145 +420,9 @@ int main(int argc, char *argv[]) {
         }
     }
 
-    cout << "DONE" << endl;
-
-/*
-    // create threads
-    thread_vars *vars;
-    vector<city> cities_by_id;
-    // store the "solutions" here, each containing the distance, first_city, and last_city in the path
-    solution **solutionArray = new solution*[blocks.size()];
-    pthread_t **threadArray = new pthread_t*[GRID_LENGTH];
-    // for city ids
-    int count = 0;
-    for(int i = 0; i < blocks.size(); i++) { solutionArray[i] = new solution[blocks[i].size()];
-        threadArray[i] = new pthread_t[GRID_LENGTH];
-        for(int j = 0; j < blocks[i].size(); j++) {
-            for(int k = 0; k < blocks[i][j].size(); k++) {
-                blocks[i][j][k].id = count;
-                count++;
-                cities_by_id.push_back(blocks[i][j][k]);
-            }
-            vector<city> cities = blocks[i][j];
-            //if(cities.size() == 0) continue;
-            thread_vars *vars = new thread_vars();
-            vars->cities = cities;
-            vars->solutionArray = solutionArray;
-            vars->i = i;
-            vars->j = j;
-            pthread_create(&threadArray[i][j], NULL, findAndStoreSolution, (void *) vars);
-        }
-    }
-
-    for(int i = 0; i < GRID_LENGTH; i++) {
-        for(int j = 0; j < GRID_LENGTH; j++) {
-            void *status;
-            pthread_join(threadArray[i][j], &status);
-        }
-    }
-
-    if(logLevel == 1) {
-        cout << endl << "Cities: " << endl;
-        for(int i = 0; i < cities_by_id.size(); i++) {
-            cout << setw(10) << left << cities_by_id[i].id << setw(8) << cities_by_id[i].x << setw(8) << cities_by_id[i].y << endl;
-        }
-    }
-
-
-
-    // use cities_by_id to go through cities
-    // store what blocks are visited
-    // cycle through the 2 blocks which are visited, but not fully connected, and find their closest non-visited city
-    // then link with them, calculate distance and add to total
-    solution blocksAtEnd[2];
-    blocksAtEnd[0] = solutionArray[0][0];
-
-    // store which blocks have not been visited
-    // should start without the first block
-    vector<solution> unvisited;
-    for(int i = 0; i < GRID_LENGTH; i++) {
-        for(int j = 0; j < GRID_LENGTH; j++) {
-            if(i==0 && j==0) continue;
-            unvisited.push_back(solutionArray[i][j]);
-        }
-    }
-
-
-    float totalDistance = solutionArray[0][0].distance;
-    // go for all unvisited blocks
-    for(int i = 0; i < GRID_LENGTH*GRID_LENGTH-1; i++) {
-        float min_dist = numeric_limits<float>::max();
-        int min_block_index;
-        int min_city;
-        // decide which block we will start from
-        solution fromBlock = blocksAtEnd[i%2];
-        // decide which city we are starting from
-        city fromCity = fromBlock.visited_cities==FIRST ? cities_by_id[fromBlock.last_city] : cities_by_id[fromBlock.first_city];
-        // now go through all unvisited blocks and find the shortest distance to any first or last city on any of them
-        for(int j = 0; j < unvisited.size(); j++) {
-            city city1 = cities_by_id[unvisited[j].first_city];
-            city city2 = cities_by_id[unvisited[j].last_city];
-            float dist1 = calcDistance(fromCity.x, fromCity.y, city1.x, city1.y);
-            float dist2 = calcDistance(fromCity.x, fromCity.y, city2.x, city2.y);
-            if(dist1 >= min_dist && dist2 >= min_dist) {
-                // neither of these is an estimated optimal route
-                continue;
-            }
-            // at this point we know we must change previous minimum
-            min_block_index = j;
-            min_city = dist1<=dist2 ? FIRST : LAST;
-            min_dist = min(dist1, dist2);
-        }
-
-        // now travel to minimum city
-        // remove minimum block from unvisited
-        // set block_at_end_* to min_block
-        // set block_*_visited_city to min_city
-        // add the distance onto the total
-        totalDistance += min_dist;
-        totalDistance += unvisited[min_block_index].distance;
-        if(i == 0) {
-            // first loop
-            blocksAtEnd[1] = unvisited[min_block_index];
-            blocksAtEnd[1].visited_cities = min_city;
-            blocksAtEnd[0].visited_cities = FIRST;
-        } else {
-            blocksAtEnd[i%2] = unvisited[min_block_index];
-            blocksAtEnd[i%2].visited_cities = min_city;
-        }
-        unvisited.erase(unvisited.begin() + min_block_index);
-
-
-    }
-    // dont forget to add the final closing distance at the end
-    city fromCity = blocksAtEnd[0].visited_cities==FIRST ? cities_by_id[blocksAtEnd[0].last_city] :
-        cities_by_id[blocksAtEnd[0].first_city];
-    city toCity = blocksAtEnd[1].visited_cities==FIRST ? cities_by_id[blocksAtEnd[0].last_city] :
-        cities_by_id[blocksAtEnd[0].first_city];
-    float dist = calcDistance(fromCity.x, fromCity.y, toCity.x, toCity.y);
-    totalDistance += dist;
-
-
-
-    if(logLevel==1) {
-        cout << endl << "block solutions: " << endl;
-        for(int i = 0; i < blocks.size(); i++) {
-            for(int j = 0; j < blocks[i].size(); j++) {
-
-                cout << setw(4) << i << setw(4) << j << setw(10) << solutionArray[i][j].distance << endl;
-
-            }
-        }
-    }
-
-    if(logLevel==1) cout << endl << "Final estimated distance: ";
-    cout << totalDistance << endl;
-
-
-
     clock_gettime(CLOCK_MONOTONIC_RAW, &end);
     uint64_t delta_us = (end.tv_sec - start.tv_sec) * 1000000 + (end.tv_nsec - start.tv_nsec) / 1000;
-    printf("took %lu\n", delta_us);
-    */
+    printf("took %f seconds\n", delta_us / 1000000.0);
+
     return 0;
 }
