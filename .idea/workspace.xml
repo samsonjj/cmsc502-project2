@@ -10,12 +10,20 @@
   </component>
   <component name="ChangeListManager">
     <list default="true" id="ec255e38-a6ec-4a01-933b-f2f6035ad043" name="Default Changelist" comment="">
-      <change afterPath="$PROJECT_DIR$/mpi-version/intersect.cpp" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/mpi-version/a.out" beforeDir="false" afterPath="$PROJECT_DIR$/mpi-version/a.out" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/mpi-version/cities.data" beforeDir="false" afterPath="$PROJECT_DIR$/mpi-version/cities.data" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/mpi-version/cities.data" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/mpi-version/gen_cities" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/mpi-version/log.txt" beforeDir="false" />
       <change beforePath="$PROJECT_DIR$/mpi-version/main.cpp" beforeDir="false" afterPath="$PROJECT_DIR$/mpi-version/main.cpp" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/mpi-version/test.cpp" beforeDir="false" />
       <change beforePath="$PROJECT_DIR$/mpi-version/tsp.cpp" beforeDir="false" afterPath="$PROJECT_DIR$/mpi-version/tsp.cpp" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/pthreaded-version/1000_cities.data" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/pthreaded-version/Makefile" beforeDir="false" afterPath="$PROJECT_DIR$/pthreaded-version/Makefile" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/pthreaded-version/cities.data" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/pthreaded-version/gen_cities" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/pthreaded-version/header.h" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/pthreaded-version/main.cpp" beforeDir="false" afterPath="$PROJECT_DIR$/pthreaded-version/main.cpp" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/pthreaded-version/tsp.cpp" beforeDir="false" />
     </list>
     <option name="EXCLUDED_CONVERTED_TO_IGNORED" value="true" />
     <option name="SHOW_DIALOG" value="false" />
@@ -37,7 +45,8 @@
       </usages-collector>
       <usages-collector id="statistics.file.extensions.open">
         <counts>
-          <entry key="cpp" value="4" />
+          <entry key="Makefile" value="1" />
+          <entry key="cpp" value="6" />
           <entry key="data" value="1" />
           <entry key="h" value="1" />
           <entry key="txt" value="1" />
@@ -45,13 +54,14 @@
       </usages-collector>
       <usages-collector id="statistics.file.types.open">
         <counts>
-          <entry key="ObjectiveC" value="5" />
-          <entry key="PLAIN_TEXT" value="2" />
+          <entry key="ObjectiveC" value="7" />
+          <entry key="PLAIN_TEXT" value="3" />
         </counts>
       </usages-collector>
       <usages-collector id="statistics.file.extensions.edit">
         <counts>
-          <entry key="cpp" value="17286" />
+          <entry key="Makefile" value="38" />
+          <entry key="cpp" value="22883" />
           <entry key="data" value="1" />
           <entry key="h" value="313" />
         </counts>
@@ -59,8 +69,8 @@
       <usages-collector id="statistics.file.types.edit">
         <counts>
           <entry key="Doxygen file" value="5" />
-          <entry key="ObjectiveC" value="17594" />
-          <entry key="PLAIN_TEXT" value="1" />
+          <entry key="ObjectiveC" value="23191" />
+          <entry key="PLAIN_TEXT" value="39" />
         </counts>
       </usages-collector>
     </session>
@@ -76,11 +86,11 @@
           </provider>
         </entry>
       </file>
-      <file pinned="false" current-in-tab="true">
+      <file pinned="false" current-in-tab="false">
         <entry file="file://$PROJECT_DIR$/mpi-version/main.cpp">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="870">
-              <caret line="358" column="39" selection-start-line="358" selection-start-column="39" selection-end-line="358" selection-end-column="39" />
+            <state relative-caret-position="416">
+              <caret line="341" column="12" selection-start-line="341" selection-start-column="12" selection-end-line="341" selection-end-column="12" />
               <folding>
                 <element signature="e#1#19#0" expanded="true" />
               </folding>
@@ -98,28 +108,22 @@
         </entry>
       </file>
       <file pinned="false" current-in-tab="false">
-        <entry file="file://$PROJECT_DIR$/mpi-version/cities.data">
-          <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="1595">
-              <caret line="200" selection-start-line="200" selection-end-line="200" />
-            </state>
-          </provider>
-        </entry>
-      </file>
-      <file pinned="false" current-in-tab="false">
-        <entry file="file://$PROJECT_DIR$/mpi-version/test.cpp">
-          <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="-34">
-              <caret line="33" column="44" selection-start-line="33" selection-start-column="44" selection-end-line="33" selection-end-column="44" />
-            </state>
-          </provider>
-        </entry>
-      </file>
-      <file pinned="false" current-in-tab="false">
         <entry file="file://$PROJECT_DIR$/mpi-version/tsp.cpp">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="1924">
-              <caret line="85" selection-start-line="85" selection-end-line="85" />
+            <state relative-caret-position="556">
+              <caret line="74" selection-start-line="74" selection-end-line="74" />
+            </state>
+          </provider>
+        </entry>
+      </file>
+      <file pinned="false" current-in-tab="true">
+        <entry file="file://$PROJECT_DIR$/pthreaded-version/main.cpp">
+          <provider selected="true" editor-type-id="text-editor">
+            <state relative-caret-position="726">
+              <caret line="204" column="34" selection-start-line="204" selection-start-column="34" selection-end-line="204" selection-end-column="34" />
+              <folding>
+                <element signature="e#73#106#0" expanded="true" />
+              </folding>
             </state>
           </provider>
         </entry>
@@ -128,10 +132,6 @@
   </component>
   <component name="FindInProjectRecents">
     <findStrings>
-      <find>SEND</find>
-      <find>min_last</find>
-      <find>vector</find>
-      <find>new cit</find>
       <find>rank</find>
       <find>max</find>
       <find>row == 2</find>
@@ -154,11 +154,18 @@
       <find>7.2</find>
       <find>distance</find>
       <find>inversion</find>
+      <find>barrier</find>
+      <find>thread</find>
+      <find>join</find>
+      <find>.push_back</find>
       <find>cout</find>
+      <find>stit</find>
+      <find>to</find>
+      <find>ordered</find>
     </findStrings>
     <replaceStrings>
-      <replace>stitch</replace>
       <replace>row == 5</replace>
+      <replace>stitch</replace>
     </replaceStrings>
   </component>
   <component name="Git.Settings">
@@ -171,8 +178,10 @@
         <option value="$PROJECT_DIR$/mpi-version/test.cpp" />
         <option value="$PROJECT_DIR$/mpi-version/cities.data" />
         <option value="$PROJECT_DIR$/mpi-version/intersect.cpp" />
+        <option value="$PROJECT_DIR$/mpi-version/Makefile" />
         <option value="$PROJECT_DIR$/mpi-version/tsp.cpp" />
         <option value="$PROJECT_DIR$/mpi-version/main.cpp" />
+        <option value="$PROJECT_DIR$/pthreaded-version/main.cpp" />
       </list>
     </option>
   </component>
@@ -205,6 +214,11 @@
               <item name="cmsc502-project2" type="b2602c69:ProjectViewProjectNode" />
               <item name="cmsc502-project2" type="462c0819:PsiDirectoryNode" />
               <item name="mpi-version" type="462c0819:PsiDirectoryNode" />
+            </path>
+            <path>
+              <item name="cmsc502-project2" type="b2602c69:ProjectViewProjectNode" />
+              <item name="cmsc502-project2" type="462c0819:PsiDirectoryNode" />
+              <item name="pthreaded-version" type="462c0819:PsiDirectoryNode" />
             </path>
           </expand>
           <select />
@@ -244,12 +258,12 @@
       <workItem from="1541963112992" duration="7954000" />
       <workItem from="1541988844001" duration="21291000" />
       <workItem from="1542170273247" duration="1102000" />
-      <workItem from="1542172683028" duration="32332000" />
+      <workItem from="1542172683028" duration="50015000" />
     </task>
     <servers />
   </component>
   <component name="TimeTrackingManager">
-    <option name="totallyTimeSpent" value="62679000" />
+    <option name="totallyTimeSpent" value="80362000" />
   </component>
   <component name="ToolWindowManager">
     <frame x="134" y="35" width="3706" height="2125" extended-state="6" />
@@ -259,7 +273,7 @@
       <window_info id="Structure" order="1" side_tool="true" weight="0.25" />
       <window_info id="Favorites" order="2" side_tool="true" />
       <window_info anchor="bottom" id="Message" order="0" />
-      <window_info anchor="bottom" id="Find" order="1" />
+      <window_info anchor="bottom" id="Find" order="1" weight="0.32956383" />
       <window_info anchor="bottom" id="Run" order="2" />
       <window_info anchor="bottom" id="Debug" order="3" weight="0.4" />
       <window_info anchor="bottom" id="Cvs" order="4" weight="0.25" />
@@ -308,6 +322,20 @@
         </state>
       </provider>
     </entry>
+    <entry file="file://$PROJECT_DIR$/pthreaded-version/tsp.cpp">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="720">
+          <caret line="20" column="29" selection-start-line="20" selection-start-column="29" selection-end-line="20" selection-end-column="29" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/mpi-version/Makefile">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="288">
+          <caret line="8" column="20" lean-forward="true" selection-start-line="8" selection-end-line="8" selection-end-column="20" />
+        </state>
+      </provider>
+    </entry>
     <entry file="file://$PROJECT_DIR$/mpi-version/intersect.cpp">
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="988">
@@ -317,17 +345,27 @@
     </entry>
     <entry file="file://$PROJECT_DIR$/mpi-version/tsp.cpp">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="1924">
-          <caret line="85" selection-start-line="85" selection-end-line="85" />
+        <state relative-caret-position="556">
+          <caret line="74" selection-start-line="74" selection-end-line="74" />
         </state>
       </provider>
     </entry>
     <entry file="file://$PROJECT_DIR$/mpi-version/main.cpp">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="870">
-          <caret line="358" column="39" selection-start-line="358" selection-start-column="39" selection-end-line="358" selection-end-column="39" />
+        <state relative-caret-position="416">
+          <caret line="341" column="12" selection-start-line="341" selection-start-column="12" selection-end-line="341" selection-end-column="12" />
           <folding>
             <element signature="e#1#19#0" expanded="true" />
+          </folding>
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/pthreaded-version/main.cpp">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="726">
+          <caret line="204" column="34" selection-start-line="204" selection-start-column="34" selection-end-line="204" selection-end-column="34" />
+          <folding>
+            <element signature="e#73#106#0" expanded="true" />
           </folding>
         </state>
       </provider>
