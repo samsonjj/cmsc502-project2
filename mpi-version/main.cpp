@@ -112,14 +112,14 @@ vector<city> stitch_cities_row(vector<city> cities1, vector<city> cities2, float
     // Push cities to a new vector, which has them in the order of the new path
     vector<city> stitched_cities;
 
-    int c1 = 0, c2 = 0, c3 = 0;
+    int c1=0, c2=0, c3=0;
 
     for (int i = min_vl; true; i++) {
         stitched_cities.push_back(cities1[i%cities1.size()]);
         c1++;
         if(i%cities1.size() == min_ul) break;
     }
-    if(min_ur < min_vr) {
+    if((min_ur - min_vr + cities2.size()) % cities2.size() == cities2.size()-1) {
         for (int i = min_ur; true; i = (i-1 + cities2.size()) % cities2.size()) {
             stitched_cities.push_back(cities2[i]);
             c2++;
@@ -129,12 +129,14 @@ vector<city> stitch_cities_row(vector<city> cities1, vector<city> cities2, float
     else {
         for (int i = min_ur; true; i = (i+1) % cities2.size()) {
             stitched_cities.push_back(cities2[i]);
-            c2++;
+            c3++;
             if(i == min_vr) break;
         }
     }
 
     sol->distance += distance2 + min_swap_cost;
+
+    printf("Got %d,%d cities, gave %d cities    %d %d %d %d %d %d\n", cities1.size(), cities2.size(), stitched_cities.size(), c1, c2, c3, min_vl, min_ur, min_vr);
 
     return stitched_cities;
 }
@@ -157,7 +159,7 @@ vector<city> stitch_cities_row(vector<city> cities1, vector<city> cities2, float
  *
  * We check during stitching to see if there are inversions
  */
-int compute_tsp(int rank) {
+void compute_tsp(int rank) {
 
     int row = rank / dims[1] + 1;
     int col = rank % dims[1] + 1;
@@ -178,29 +180,27 @@ int compute_tsp(int rank) {
 
 
 
+    // STITCH BY ROW
     // if col % 2^(i+1) == 0, this process must receive
     // else, send, then quit UNLESS we are the last block, which is special
     // last block must receive according to the masking algorithm below
-    if(dims[1] == 1) {
+    if(dims[0] != 1) {
 
-    }
-    else {
         for(int i = 0; (1<<i) <= dims[1]; i++) {
 
 
             if(col % (1<<(i+1)) == 0) {
+                // WE ARE RECEIVING
 
                 int src = col-(1<<i)-1+(row-1)*dims[1];
-                vector<city> other_cities = receive_cities(src);
                 float other_distance;
+                vector<city> other_cities = receive_cities(src);
                 MPI_Recv(&other_distance, 1, MPI_FLOAT, src, 0, cartcomm, MPI_STATUS_IGNORE);
 
                 cities_ordered_by_path = stitch_cities_row(other_cities, cities_ordered_by_path, other_distance, &sol);
-
-
             }
             else {
-
+                // PROBABLY SENDING, UNLESS WE ARE THE LAST BLOCK IN THE ROW
                 if(col == dims[1]) {
                     unsigned int mask = 1;
                     while((col & (~mask)) == col) {
@@ -210,7 +210,6 @@ int compute_tsp(int rank) {
                     while((col & (~mask)) != 0) {
 
                         int src = (col & (~mask)) - 1 + (row-1)*dims[1];
-
                         vector<city> other_cities = receive_cities(src);
                         float other_distance;
                         MPI_Recv(&other_distance, 1, MPI_FLOAT, src, 0, cartcomm, MPI_STATUS_IGNORE);
@@ -233,6 +232,80 @@ int compute_tsp(int rank) {
                     send_cities(cities_ordered_by_path, dest);
                     MPI_Send(&sol.distance, 1, MPI_FLOAT, dest, 0, cartcomm);
 
+                    return;
+                }
+            }
+
+        }
+    }
+
+
+
+
+
+
+
+
+
+
+    // STITCH BY COLUMN
+    // if col % 2^(i+1) == 0, this process must receive
+    // else, send, then quit UNLESS we are the last block, which is special
+    // last block must receive according to the masking algorithm below
+    if(dims[0] != 1) {
+
+        for(int i = 0; (1<<i) <= dims[0]; i++) {
+
+
+            if(row % (1<<(i+1)) == 0) {
+                // WE ARE RECEIVING
+
+                //int src = col-1+(row-1-(1<<i))*dims[1];
+                int src;
+                int coords[] = {(row-1-(1<<i)), (col-1)};
+                MPI_Cart_rank(cartcomm, coords , &src);
+
+                float other_distance;
+                vector<city> other_cities;
+
+                other_cities = receive_cities(src);
+                MPI_Recv(&other_distance, 1, MPI_FLOAT, src, 0, cartcomm, MPI_STATUS_IGNORE);
+
+                cities_ordered_by_path = stitch_cities_row(other_cities, cities_ordered_by_path, other_distance, &sol);
+            }
+            else {
+                // PROBABLY SENDING, UNLESS WE ARE THE LAST BLOCK IN THE COLUMN
+                if(row == dims[0]) {
+                    unsigned int mask = 1;
+                    while((row & (~mask)) == row) {
+                        mask = (mask << 1) + 1;
+                    }
+
+                    while((row & (~mask)) != 0) {
+
+                        int src = col - 1 + ((row & (~mask))-1)*dims[0];
+                        vector<city> other_cities = receive_cities(src);
+                        float other_distance;
+                        MPI_Recv(&other_distance, 1, MPI_FLOAT, src, 0, cartcomm, MPI_STATUS_IGNORE);
+
+                        cities_ordered_by_path = stitch_cities_row(other_cities, cities_ordered_by_path, other_distance, &sol);
+
+                        unsigned int temp = (row & (~mask));
+                        while((row & (~mask)) == temp) {
+                            mask = (mask << 1) + 1;
+                        }
+                    }
+
+                    break;
+                }
+                else {
+                    int dest = row + (1 << i) - 1 >= dims[0] - 1 ? dims[0] * dims[1] - 1 :
+                               (col - 1) + (row + (1 << i) - 1) * dims[0];
+
+                    // SEND CITIES
+                    send_cities(cities_ordered_by_path, dest);
+                    MPI_Send(&sol.distance, 1, MPI_FLOAT, dest, 0, cartcomm);
+
                     break;
                 }
             }
@@ -240,15 +313,32 @@ int compute_tsp(int rank) {
         }
     }
 
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
     if(row == dims[1] && col == dims[1])
     {
         cout << "Distance: " << sol.distance << endl;
         for(int i = 0; i < cities_ordered_by_path.size(); i++) {
-            printf("%7.2f %7.2f\n", cities_ordered_by_path[i].x, cities_ordered_by_path[i].y);
+            printf("%12.5f %12.5f\n", cities_ordered_by_path[i].x, cities_ordered_by_path[i].y);
         }
     }
 
-    return 0;
+    return;
 }
 
 
