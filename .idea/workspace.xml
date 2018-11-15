@@ -10,8 +10,12 @@
   </component>
   <component name="ChangeListManager">
     <list default="true" id="ec255e38-a6ec-4a01-933b-f2f6035ad043" name="Default Changelist" comment="">
+      <change afterPath="$PROJECT_DIR$/mpi-version/intersect.cpp" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/mpi-version/a.out" beforeDir="false" afterPath="$PROJECT_DIR$/mpi-version/a.out" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/mpi-version/cities.data" beforeDir="false" afterPath="$PROJECT_DIR$/mpi-version/cities.data" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/mpi-version/main.cpp" beforeDir="false" afterPath="$PROJECT_DIR$/mpi-version/main.cpp" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/mpi-version/tsp.cpp" beforeDir="false" afterPath="$PROJECT_DIR$/mpi-version/tsp.cpp" afterDir="false" />
     </list>
     <option name="EXCLUDED_CONVERTED_TO_IGNORED" value="true" />
     <option name="SHOW_DIALOG" value="false" />
@@ -33,7 +37,7 @@
       </usages-collector>
       <usages-collector id="statistics.file.extensions.open">
         <counts>
-          <entry key="cpp" value="3" />
+          <entry key="cpp" value="4" />
           <entry key="data" value="1" />
           <entry key="h" value="1" />
           <entry key="txt" value="1" />
@@ -41,13 +45,13 @@
       </usages-collector>
       <usages-collector id="statistics.file.types.open">
         <counts>
-          <entry key="ObjectiveC" value="4" />
+          <entry key="ObjectiveC" value="5" />
           <entry key="PLAIN_TEXT" value="2" />
         </counts>
       </usages-collector>
       <usages-collector id="statistics.file.extensions.edit">
         <counts>
-          <entry key="cpp" value="16163" />
+          <entry key="cpp" value="17286" />
           <entry key="data" value="1" />
           <entry key="h" value="313" />
         </counts>
@@ -55,7 +59,7 @@
       <usages-collector id="statistics.file.types.edit">
         <counts>
           <entry key="Doxygen file" value="5" />
-          <entry key="ObjectiveC" value="16471" />
+          <entry key="ObjectiveC" value="17594" />
           <entry key="PLAIN_TEXT" value="1" />
         </counts>
       </usages-collector>
@@ -66,26 +70,38 @@
       <file pinned="false" current-in-tab="false">
         <entry file="file://$PROJECT_DIR$/mpi-version/header.h">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="925">
-              <caret line="60" lean-forward="true" selection-start-line="60" selection-end-line="60" />
-            </state>
-          </provider>
-        </entry>
-      </file>
-      <file pinned="false" current-in-tab="false">
-        <entry file="file://$PROJECT_DIR$/mpi-version/main.cpp">
-          <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="812">
-              <caret line="121" column="69" selection-start-line="121" selection-start-column="69" selection-end-line="121" selection-end-column="69" />
+            <state relative-caret-position="-34">
+              <caret line="60" selection-start-line="60" selection-end-line="60" />
             </state>
           </provider>
         </entry>
       </file>
       <file pinned="false" current-in-tab="true">
+        <entry file="file://$PROJECT_DIR$/mpi-version/main.cpp">
+          <provider selected="true" editor-type-id="text-editor">
+            <state relative-caret-position="870">
+              <caret line="358" column="39" selection-start-line="358" selection-start-column="39" selection-end-line="358" selection-end-column="39" />
+              <folding>
+                <element signature="e#1#19#0" expanded="true" />
+              </folding>
+            </state>
+          </provider>
+        </entry>
+      </file>
+      <file pinned="false" current-in-tab="false">
+        <entry file="file://$PROJECT_DIR$/mpi-version/intersect.cpp">
+          <provider selected="true" editor-type-id="text-editor">
+            <state relative-caret-position="988">
+              <caret line="78" column="14" selection-start-line="78" selection-start-column="14" selection-end-line="78" selection-end-column="14" />
+            </state>
+          </provider>
+        </entry>
+      </file>
+      <file pinned="false" current-in-tab="false">
         <entry file="file://$PROJECT_DIR$/mpi-version/cities.data">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="1753">
-              <caret line="392" lean-forward="true" selection-start-line="392" selection-end-line="392" />
+            <state relative-caret-position="1595">
+              <caret line="200" selection-start-line="200" selection-end-line="200" />
             </state>
           </provider>
         </entry>
@@ -93,8 +109,8 @@
       <file pinned="false" current-in-tab="false">
         <entry file="file://$PROJECT_DIR$/mpi-version/test.cpp">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="1450">
-              <caret line="50" column="65" selection-start-line="50" selection-start-column="65" selection-end-line="50" selection-end-column="65" />
+            <state relative-caret-position="-34">
+              <caret line="33" column="44" selection-start-line="33" selection-start-column="44" selection-end-line="33" selection-end-column="44" />
             </state>
           </provider>
         </entry>
@@ -102,8 +118,8 @@
       <file pinned="false" current-in-tab="false">
         <entry file="file://$PROJECT_DIR$/mpi-version/tsp.cpp">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="29">
-              <caret line="8" column="48" selection-start-line="8" selection-start-column="48" selection-end-line="8" selection-end-column="48" />
+            <state relative-caret-position="1924">
+              <caret line="85" selection-start-line="85" selection-end-line="85" />
             </state>
           </provider>
         </entry>
@@ -135,12 +151,14 @@
       <find>path.push</find>
       <find>row == 1</find>
       <find>&quot;, &quot;</find>
-      <find>cout</find>
       <find>7.2</find>
+      <find>distance</find>
+      <find>inversion</find>
+      <find>cout</find>
     </findStrings>
     <replaceStrings>
-      <replace>row == 5</replace>
       <replace>stitch</replace>
+      <replace>row == 5</replace>
     </replaceStrings>
   </component>
   <component name="Git.Settings">
@@ -150,10 +168,11 @@
     <option name="CHANGED_PATHS">
       <list>
         <option value="$PROJECT_DIR$/mpi-version/header.h" />
-        <option value="$PROJECT_DIR$/mpi-version/tsp.cpp" />
         <option value="$PROJECT_DIR$/mpi-version/test.cpp" />
-        <option value="$PROJECT_DIR$/mpi-version/main.cpp" />
         <option value="$PROJECT_DIR$/mpi-version/cities.data" />
+        <option value="$PROJECT_DIR$/mpi-version/intersect.cpp" />
+        <option value="$PROJECT_DIR$/mpi-version/tsp.cpp" />
+        <option value="$PROJECT_DIR$/mpi-version/main.cpp" />
       </list>
     </option>
   </component>
@@ -198,6 +217,7 @@
     <property name="last_opened_file_path" value="$PROJECT_DIR$" />
     <property name="nodejs_interpreter_path.stuck_in_default_project" value="undefined stuck path" />
     <property name="nodejs_npm_path_reset_for_default_project" value="true" />
+    <property name="settings.editor.selected.configurable" value="editor.preferences.fonts.default" />
   </component>
   <component name="RunDashboard">
     <option name="ruleStates">
@@ -224,12 +244,12 @@
       <workItem from="1541963112992" duration="7954000" />
       <workItem from="1541988844001" duration="21291000" />
       <workItem from="1542170273247" duration="1102000" />
-      <workItem from="1542172683028" duration="27632000" />
+      <workItem from="1542172683028" duration="32332000" />
     </task>
     <servers />
   </component>
   <component name="TimeTrackingManager">
-    <option name="totallyTimeSpent" value="57979000" />
+    <option name="totallyTimeSpent" value="62679000" />
   </component>
   <component name="ToolWindowManager">
     <frame x="134" y="35" width="3706" height="2125" extended-state="6" />
@@ -267,38 +287,48 @@
         <state relative-caret-position="-16372" />
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/mpi-version/test.cpp">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="1450">
-          <caret line="50" column="65" selection-start-line="50" selection-start-column="65" selection-end-line="50" selection-end-column="65" />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/mpi-version/tsp.cpp">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="29">
-          <caret line="8" column="48" selection-start-line="8" selection-start-column="48" selection-end-line="8" selection-end-column="48" />
-        </state>
-      </provider>
-    </entry>
     <entry file="file://$PROJECT_DIR$/mpi-version/header.h">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="925">
-          <caret line="60" lean-forward="true" selection-start-line="60" selection-end-line="60" />
+        <state relative-caret-position="-34">
+          <caret line="60" selection-start-line="60" selection-end-line="60" />
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/mpi-version/main.cpp">
+    <entry file="file://$PROJECT_DIR$/mpi-version/test.cpp">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="812">
-          <caret line="121" column="69" selection-start-line="121" selection-start-column="69" selection-end-line="121" selection-end-column="69" />
+        <state relative-caret-position="-34">
+          <caret line="33" column="44" selection-start-line="33" selection-start-column="44" selection-end-line="33" selection-end-column="44" />
         </state>
       </provider>
     </entry>
     <entry file="file://$PROJECT_DIR$/mpi-version/cities.data">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="1753">
-          <caret line="392" lean-forward="true" selection-start-line="392" selection-end-line="392" />
+        <state relative-caret-position="1595">
+          <caret line="200" selection-start-line="200" selection-end-line="200" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/mpi-version/intersect.cpp">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="988">
+          <caret line="78" column="14" selection-start-line="78" selection-start-column="14" selection-end-line="78" selection-end-column="14" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/mpi-version/tsp.cpp">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="1924">
+          <caret line="85" selection-start-line="85" selection-end-line="85" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/mpi-version/main.cpp">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="870">
+          <caret line="358" column="39" selection-start-line="358" selection-start-column="39" selection-end-line="358" selection-end-column="39" />
+          <folding>
+            <element signature="e#1#19#0" expanded="true" />
+          </folding>
         </state>
       </provider>
     </entry>

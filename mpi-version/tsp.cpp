@@ -69,29 +69,7 @@ solution startDynamicSolution(thread_vars *vars, std::vector <city> cities) {
     return theSolution;
 }
 
-vector <vector<vector < city>> >
 
-generate_cities(int a, int b, int cities_per_block) {
-
-    int count = 0;
-    vector < vector < vector < city > > > all_cities(a);
-    for (int i = 0; i < a; i++) {
-        for (int j = 0; j < b; j++) {
-            vector <city> cities;
-            for (int k = 0; k < cities_per_block; k++) {
-                // Generate cities which lay inside the ith by jth block (range of whole grid is 500x500)
-                // Generate up to 2 decimal places
-                int x = (rand() % (50000 / b)) / 100.00 + ((500.0 / b) * i);
-                int y = (rand() % (50000 / b)) / 100.00 + ((500.0 / b) * j);
-                city c(x, y, count);
-                cities.push_back(c);
-                count++;
-            }
-            all_cities[i].push_back(cities);
-        }
-    }
-    return all_cities;
-}
 
 vector<city> generate_cities(int b, int row, int col, int num_cities) {
 
@@ -101,6 +79,10 @@ vector<city> generate_cities(int b, int row, int col, int num_cities) {
         // Generate up to 2 decimal places
         float x = ((rand() % (50000 / b)) + (50000 / b) * (col-1)) / 100.0;
         float y = ((rand() % (50000 / b)) + (50000 / b) * (row-1)) / 100.0;
+
+        x = floor(x * 100) / 100;
+        y = floor(y * 100) / 100;
+
         city c(x, y, k);
 
         cities.push_back(c);

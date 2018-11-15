@@ -1,5 +1,6 @@
 
 #include "tsp.cpp"
+#include "intersect.cpp"
 
 /**
  * Gives an approximate solution to the TSP. Seperates cities into "blocks" on a
@@ -109,6 +110,27 @@ vector<city> stitch_cities_row(vector<city> cities1, vector<city> cities2, float
         }
     }
 
+    if(doIntersect(cities1[min_ul], cities2[min_ur], cities1[min_vl], cities2[min_vr])) cout << "the stitch is inverted!";
+
+    for(int i = 0; i < cities1.size(); i++) {
+        if(i != min_ul && i != min_vl && (i+1)%cities1.size() != min_ul && (i+1)%cities1.size() != min_vl) {
+            if(doIntersect(cities1[min_ul], cities2[min_ur], cities1[i], cities1[(i+1)%cities1.size()]))
+                cout << "stitch1 caused an inversion!" << endl;
+            if(doIntersect(cities1[min_vl], cities2[min_vr], cities1[i], cities1[(i+1)%cities1.size()]))
+                cout << "stitch2 caused an inversion!" << endl;
+        }
+    }
+
+    for(int i = 0; i < cities2.size(); i++) {
+        if(i != min_ur && i != min_vr && (i+1)%cities2.size() != min_ur && (i+1)%cities2.size() != min_vr) {
+            if(doIntersect(cities1[min_ul], cities2[min_ur], cities2[i], cities2[(i+1)%cities2.size()]))
+                cout << "stitch3 caused an inversion!" << endl;
+            if(doIntersect(cities1[min_vl], cities2[min_vr], cities2[i], cities2[(i+1)%cities2.size()]))
+                cout << "stitch4 caused an inversion!" << endl;
+        }
+    }
+
+
     // Push cities to a new vector, which has them in the order of the new path
     vector<city> stitched_cities;
 
@@ -134,9 +156,10 @@ vector<city> stitch_cities_row(vector<city> cities1, vector<city> cities2, float
         }
     }
 
-    sol->distance += distance2 + min_swap_cost;
 
-    printf("Got %d,%d cities, gave %d cities    %d %d %d %d %d %d\n", cities1.size(), cities2.size(), stitched_cities.size(), c1, c2, c3, min_vl, min_ur, min_vr);
+
+
+    sol->distance += distance2 + min_swap_cost;
 
     return stitched_cities;
 }
@@ -177,7 +200,6 @@ void compute_tsp(int rank) {
     for(int i = 0; i < sol.path.size(); i++) {
         cities_ordered_by_path.push_back(vars->cities[sol.path[i]]);
     }
-
 
 
     // STITCH BY ROW
@@ -332,9 +354,12 @@ void compute_tsp(int rank) {
 
     if(row == dims[1] && col == dims[1])
     {
-        cout << "Distance: " << sol.distance << endl;
+        cout << endl << "Distance: " << sol.distance << endl << endl;
+
+        printf("%12s %12s\n\n", "x", "y");
+
         for(int i = 0; i < cities_ordered_by_path.size(); i++) {
-            printf("%12.5f %12.5f\n", cities_ordered_by_path[i].x, cities_ordered_by_path[i].y);
+            printf("%12.2f %12.2f\n", cities_ordered_by_path[i].x, cities_ordered_by_path[i].y);
         }
     }
 
