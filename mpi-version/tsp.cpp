@@ -88,13 +88,5 @@ vector<city> generate_cities(int b, int row, int col, int num_cities) {
         cities.push_back(c);
     }
 
-    for(int i = 0; i < cities.size(); i++) {
-        for(int j = 0; j < cities.size(); j++) {
-            if(i != j && cities[i].x == cities[j].x && cities[i].y == cities[j].y) {
-                cout << "WHAT THE FUCK";
-            }
-        }
-    }
-
     return cities;
 }

@@ -164,7 +164,8 @@ vector <city> stitch_cities_row(vector <city> cities1, vector <city> cities2, fl
 
     // Fix inversions (Yes, there are inversions)
     bool fixed = false;
-    while (!fixed) {
+    int count = 0;
+    while (!fixed && count < 15) {
         fixed = true;
         for (int i = 0; i < stitched_cities.size(); i++) {
             for (int j = i + 2; j < stitched_cities.size(); j++) {
@@ -191,6 +192,7 @@ vector <city> stitch_cities_row(vector <city> cities1, vector <city> cities2, fl
 
             }
         }
+        count++;
     }
 
     // Calculate new total distance, since inversion swapping can make it weird

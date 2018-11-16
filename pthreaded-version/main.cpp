@@ -134,7 +134,8 @@ stitch_cities_row(vector <city> cities1, vector <city> cities2, float distance2,
 
     // Fix inversions (Yes, there are inversions)
     bool fixed = false;
-    while (!fixed) {
+    int count = 0;
+    while (!fixed && count < 15) {
         fixed = true;
         for (int i = 0; i < stitched_cities.size(); i++) {
             for (int j = i + 2; j < stitched_cities.size(); j++) {
@@ -161,6 +162,7 @@ stitch_cities_row(vector <city> cities1, vector <city> cities2, float distance2,
 
             }
         }
+        count++;
     }
 
     // Calculate new total distance, since inversion swapping can make it weird
@@ -218,13 +220,9 @@ void *methodForThreads(void *pointer) {
                 int srcCol = col - (1 << i) - 1;
                 int srcRow = row - 1;
 
-                if (row == 1) cout << col << " waiting to receive from " << srcCol + 1 << endl;
-
                 pthread_mutex_lock(&mutexArray[srcRow][srcCol]);
                 float other_distance = all_solutions[srcRow][srcCol].distance;
                 vector <city> other_cities = all_cities[srcRow][srcCol];
-
-                if (row == 1) cout << col << " received from " << srcCol + 1 << endl;
 
                 vector <city> stitched = stitch_cities_row(other_cities, all_cities[row - 1][col - 1],
                                                            other_distance, &all_solutions[row - 1][col - 1], srcRow,
@@ -368,6 +366,7 @@ void *methodForThreads(void *pointer) {
 }
 
 
+// Enter a square number of threads as the first command line argument
 int main(int argc, char *argv[]) {
 
     srand(time(NULL));
