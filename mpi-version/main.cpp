@@ -4,6 +4,7 @@
  * November 15, 2018
  */
 
+#include <mpi.h>
 #include "tsp.cpp"
 #include "intersect.cpp"
 
